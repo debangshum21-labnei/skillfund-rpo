@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-primary: #0f172a;
+  --color-secondary: #1e293b;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-surface: #ffffff;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --radius-card: 0.875rem;
+  --shadow-soft: 0 18px 50px rgb(15 23 42 / 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgb(34 197 94 / 0.22);
+}
+
+@utility app-container {
+  width: min(100% - 2rem, 1180px);
+  margin-inline: auto;
+}
+
+@utility focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgb(34 197 94 / 0.24);
+}

@@ -1,6 +1,9 @@
 # build output
+.next/
+out/
 dist/
-# generated types
+
+# generated framework state
 .astro/
 
 # dependencies
@@ -19,3 +22,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# jetbrains setting folder
+.idea/
