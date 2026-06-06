@@ -1,44 +1,82 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
-const bars = [44, 48, 43, 52, 58, 54, 62, 66, 61, 72, 70, 78, 82, 76, 88, 84, 91, 96];
+const SYMBOL_MAP: Record<string, string> = {
+  "EUR/USD": "FX:EURUSD",
+  "GBP/USD": "FX:GBPUSD",
+  "XAU/USD": "OANDA:XAUUSD",
+  "USD/JPY": "FX:USDJPY",
+};
 
-export function ChartPlaceholder() {
+const TIMEFRAMES = ["1", "5", "15", "60", "D"];
+
+interface ChartProps {
+  symbol?: string;
+}
+
+export function ChartPlaceholder({ symbol = "EUR/USD" }: ChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeInterval, setActiveInterval] = useState("60");
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/tv.js";
+    script.async = true;
+    script.onload = () => {
+      if (typeof (window as any).TradingView === "undefined") return;
+      new (window as any).TradingView.widget({
+        autosize: true,
+        symbol: SYMBOL_MAP[symbol] ?? "FX:EURUSD",
+        interval: activeInterval,
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        toolbar_bg: "#131722",
+        enable_publishing: false,
+        hide_side_toolbar: false,
+        allow_symbol_change: false,
+        container_id: "tv_chart_container",
+      });
+    };
+
+    containerRef.current.appendChild(script);
+  }, [symbol, activeInterval]);
+
   return (
-    <div className="min-h-[420px] rounded-card border border-border bg-white p-4 shadow-soft">
+    <div className="min-h-[480px] rounded-card border border-border bg-white p-4 shadow-soft">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-muted">TradingView placeholder</p>
-          <h2 className="text-xl font-semibold text-primary">EUR/USD · 1.0861</h2>
+          <p className="text-sm font-medium text-muted">Live chart</p>
+          <h2 className="text-xl font-semibold text-primary">{symbol}</h2>
         </div>
-        <div className="flex gap-2">
-          <Badge tone="success">+0.42%</Badge>
-          <Badge>Demo feed</Badge>
+        <div className="flex gap-2 flex-wrap">
+          {TIMEFRAMES.map((tf) => (
+            <button
+              key={tf}
+              onClick={() => setActiveInterval(tf)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                activeInterval === tf
+                  ? "bg-primary text-white border-primary"
+                  : "bg-white text-muted border-border hover:border-primary"
+              }`}
+            >
+              {tf === "D" ? "1D" : tf === "60" ? "1H" : tf + "m"}
+            </button>
+          ))}
+          <Badge>Live</Badge>
         </div>
       </div>
-      <div className="relative h-[320px] overflow-hidden rounded-xl border border-slate-100 bg-slate-950">
-        <div className="absolute inset-0 grid grid-cols-6 grid-rows-5 opacity-25">
-          {Array.from({ length: 30 }).map((_, index) => (
-            <span key={index} className="border border-slate-700" />
-          ))}
-        </div>
-        <div className="absolute inset-x-6 bottom-8 flex h-64 items-end gap-2">
-          {bars.map((height, index) => (
-            <span
-              key={index}
-              className={index % 4 === 0 ? "w-full rounded-t bg-red-400" : "w-full rounded-t bg-green-400"}
-              style={{ height: `${height}%` }}
-            />
-          ))}
-        </div>
-        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 800 320" preserveAspectRatio="none">
-          <path
-            d="M0 230 C80 210 110 238 180 198 C255 154 305 183 365 146 C430 104 500 130 570 88 C640 46 700 76 800 42"
-            fill="none"
-            stroke="#22C55E"
-            strokeWidth="3"
-          />
-        </svg>
-      </div>
+      <div
+        id="tv_chart_container"
+        ref={containerRef}
+        className="h-[380px] rounded-xl overflow-hidden"
+      />
     </div>
   );
 }

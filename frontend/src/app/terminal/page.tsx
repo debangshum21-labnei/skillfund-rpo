@@ -1,14 +1,19 @@
+"use client";
+
+import { useState } from "react";
 import { AppShell } from "@/components/layout/sidebar";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { RewardProgress } from "@/components/dashboard/reward-progress";
 import { TradeTable } from "@/components/dashboard/trade-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartPlaceholder } from "@/components/trading/chart-placeholder";
+import { TradingViewChart } from "@/components/trading/tradingview-chart";
 import { PositionsTable } from "@/components/trading/positions-table";
 import { TradingPanel } from "@/components/trading/trading-panel";
 import { activeSession, positions, trades, wallets } from "@/lib/mock-data";
 
 export default function TerminalPage() {
+  const [symbol, setSymbol] = useState("NASDAQ:AAPL");
+
   return (
     <AppShell
       active="/terminal"
@@ -39,8 +44,8 @@ export default function TerminalPage() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_360px]">
-        <ChartPlaceholder />
-        <TradingPanel />
+        <TradingViewChart symbol={symbol} onSymbolChange={setSymbol} />
+        <TradingPanel symbol={symbol} onSymbolChange={setSymbol} />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
