@@ -5,19 +5,18 @@ import { Minus, Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-import { SYMBOLS } from "@/components/trading/tradingview-chart";
+import { SYMBOLS } from "@/components/trading/symbols";
 
-// Map TV symbol → display label
 const SYMBOL_LABELS: Record<string, string> = Object.fromEntries(
   SYMBOLS.map((s) => [s.value, s.label])
 );
 
-// Fallback mock prices when fetch isn't available
 const MOCK_PRICES: Record<string, number> = {
-  "NASDAQ:AAPL":    189.5,
-  "FX:EURUSD":      1.0861,
+  "NASDAQ:AAPL":     189.5,
+  "FX:EURUSD":       1.0861,
   "BINANCE:BTCUSDT": 60620,
-  "NSE:NIFTY":      22400,
+  "OANDA:XAUUSD":    2326.5,
+  "NSE:NIFTY50":     22400,
 };
 
 interface Order {
@@ -41,12 +40,10 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
   const [margin, setMargin] = useState(22);
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [lastSide, setLastSide] = useState<"Buy" | "Sell" | null>(null);
 
   const positionSize = margin * leverage;
   const lossBuffer = ((margin / positionSize) * 100).toFixed(1);
 
-  // Fetch live price using TradingView's free quote endpoint
   useEffect(() => {
     setLivePrice(null);
     const ticker = symbol.split(":")[1];
@@ -66,24 +63,25 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
     }
 
     fetchPrice();
-    const interval = setInterval(fetchPrice, 15000); // refresh every 15s
+    const interval = setInterval(fetchPrice, 15000);
     return () => clearInterval(interval);
   }, [symbol]);
 
   function placeOrder(side: "Buy" | "Sell") {
     const entry = livePrice ?? MOCK_PRICES[symbol] ?? 0;
-    const order: Order = {
-      id: Date.now(),
-      symbol,
-      side,
-      margin,
-      leverage,
-      positionSize,
-      entryPrice: entry,
-      time: new Date().toLocaleTimeString(),
-    };
-    setOrders((prev) => [order, ...prev.slice(0, 4)]);
-    setLastSide(side);
+    setOrders((prev) => [
+      {
+        id: Date.now(),
+        symbol,
+        side,
+        margin,
+        leverage,
+        positionSize,
+        entryPrice: entry,
+        time: new Date().toLocaleTimeString(),
+      },
+      ...prev.slice(0, 4),
+    ]);
   }
 
   return (
@@ -92,14 +90,11 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
         <CardTitle>Order ticket</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-
-        {/* Buy / Sell */}
         <div className="grid grid-cols-2 gap-3">
           <Button variant="success" onClick={() => placeOrder("Buy")}>Buy</Button>
           <Button variant="danger"  onClick={() => placeOrder("Sell")}>Sell</Button>
         </div>
 
-        {/* Live price */}
         <div className="rounded-xl border border-border bg-slate-50 px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-muted">Live price</span>
           {livePrice ? (
@@ -111,7 +106,6 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           )}
         </div>
 
-        {/* Market selector — synced with chart */}
         <div className="space-y-2">
           <Label htmlFor="market">Market</Label>
           <select
@@ -126,7 +120,6 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           </select>
         </div>
 
-        {/* Margin */}
         <div className="space-y-2">
           <Label htmlFor="margin">Margin ($)</Label>
           <Input
@@ -137,29 +130,21 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           />
         </div>
 
-        {/* Leverage */}
         <div className="space-y-2">
           <Label>Leverage</Label>
           <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50 p-2">
-            <Button
-              type="button" variant="secondary" size="icon"
-              onClick={() => setLeverage((v) => Math.max(1, v - 1))}
-              aria-label="Decrease leverage"
-            >
+            <Button type="button" variant="secondary" size="icon"
+              onClick={() => setLeverage((v) => Math.max(1, v - 1))} aria-label="Decrease leverage">
               <Minus className="h-4 w-4" />
             </Button>
             <span className="text-lg font-semibold text-primary">{leverage}x</span>
-            <Button
-              type="button" variant="secondary" size="icon"
-              onClick={() => setLeverage((v) => Math.min(100, v + 1))}
-              aria-label="Increase leverage"
-            >
+            <Button type="button" variant="secondary" size="icon"
+              onClick={() => setLeverage((v) => Math.min(100, v + 1))} aria-label="Increase leverage">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Position summary */}
         <div className="rounded-xl border border-border bg-slate-50 p-3 text-sm space-y-2">
           <div className="flex justify-between">
             <span className="text-muted">Position size</span>
@@ -175,7 +160,6 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           </div>
         </div>
 
-        {/* Recent orders */}
         {orders.length > 0 && (
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase text-muted">Recent orders</p>
@@ -198,7 +182,6 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
             ))}
           </div>
         )}
-
       </CardContent>
     </Card>
   );
