@@ -17,7 +17,10 @@ export function AccordionItem({
 }: React.ComponentProps<typeof AccordionPrimitive.Item>) {
   return (
     <AccordionPrimitive.Item
-      className={cn("rounded-card border border-border bg-white px-4 shadow-sm", className)}
+      className={cn(
+        "rounded-card border border-border bg-[var(--bg-surface)] px-4 shadow-sm",
+        className,
+      )}
       {...props}
     />
   );

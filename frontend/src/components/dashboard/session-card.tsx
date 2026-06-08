@@ -25,7 +25,7 @@ export function SessionCard() {
             <span className="font-medium text-primary">Session PnL</span>
             <span className="text-success">{formatPercent(activeSession.profitPercent)}</span>
           </div>
-          <div className="h-3 rounded-full bg-slate-100">
+          <div className="h-3 rounded-full bg-[var(--bg-overlay)]">
             <div
               className="h-3 rounded-full bg-success"
               style={{ width: `${(activeSession.profitPercent / activeSession.targetProfitPercent) * 100}%` }}
@@ -34,8 +34,8 @@ export function SessionCard() {
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           {sessionRules.map((rule) => (
-            <div key={rule.label} className="rounded-xl border border-border bg-slate-50 p-3">
-              <p className="text-xs font-medium uppercase text-slate-500">{rule.label}</p>
+            <div key={rule.label} className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+              <p className="text-xs font-medium uppercase text-[var(--text-muted)]">{rule.label}</p>
               <p className="mt-1 text-sm font-semibold text-primary">{rule.value}</p>
             </div>
           ))}
@@ -57,10 +57,14 @@ function Metric({
   tone: "success" | "danger" | "neutral";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-slate-50 p-3">
+    <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
       <Icon
         className={
-          tone === "success" ? "h-4 w-4 text-success" : tone === "danger" ? "h-4 w-4 text-danger" : "h-4 w-4 text-muted"
+          tone === "success"
+            ? "h-4 w-4 text-success"
+            : tone === "danger"
+              ? "h-4 w-4 text-danger"
+              : "h-4 w-4 text-muted"
         }
       />
       <p className="mt-2 text-xs text-muted">{label}</p>

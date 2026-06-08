@@ -35,13 +35,13 @@ type TradingViewWidgetConfig = {
 };
 
 const TIMEFRAMES = [
-  { label: "1m",  value: "1"   },
-  { label: "5m",  value: "5"   },
-  { label: "15m", value: "15"  },
-  { label: "1H",  value: "60"  },
-  { label: "4H",  value: "240" },
-  { label: "1D",  value: "D"   },
-  { label: "1W",  value: "W"   },
+  { label: "1m", value: "1" },
+  { label: "5m", value: "5" },
+  { label: "15m", value: "15" },
+  { label: "1H", value: "60" },
+  { label: "4H", value: "240" },
+  { label: "1D", value: "D" },
+  { label: "1W", value: "W" },
 ];
 
 interface Props {
@@ -52,12 +52,32 @@ interface Props {
 export function TradingViewChart({ symbol, onSymbolChange }: Props) {
   const generatedId = useId();
   const containerId = useMemo(() => `tradingview-${generatedId.replace(/:/g, "")}`, [generatedId]);
-  const wrapperRef  = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const [scriptReady, setScriptReady] = useState(false);
-  const [reloadKey,   setReloadKey]   = useState(0);
-  const [interval,    setInterval]    = useState("60");
-  const [fullscreen,  setFullscreen]  = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [interval, setInterval] = useState("60");
+  const [fullscreen, setFullscreen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    // Set initial theme
+    const isLight = document.documentElement.classList.contains("light");
+    setTheme(isLight ? "light" : "dark");
+
+    // Observe class list changes to toggle theme dynamically
+    const observer = new MutationObserver(() => {
+      const currentIsLight = document.documentElement.classList.contains("light");
+      setTheme(currentIsLight ? "light" : "dark");
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!scriptReady || !window.TradingView) return;
@@ -71,10 +91,10 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
       symbol,
       interval,
       timezone: "Asia/Kolkata",
-      theme: "dark",
+      theme,
       style: "1",
       locale: "en",
-      toolbar_bgcolor: "#0f172a",
+      toolbar_bgcolor: theme === "light" ? "#f1f5f9" : "#0f172a",
       enable_publishing: false,
       allow_symbol_change: false,
       hide_side_toolbar: false,
@@ -83,7 +103,7 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
     });
 
     return () => { container.innerHTML = ""; };
-  }, [containerId, reloadKey, scriptReady, symbol, interval]);
+  }, [containerId, reloadKey, scriptReady, symbol, interval, theme]);
 
   useEffect(() => {
     const handler = () => setFullscreen(!!document.fullscreenElement);
@@ -93,9 +113,9 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      wrapperRef.current?.requestFullscreen().catch(() => {});
+      wrapperRef.current?.requestFullscreen().catch(() => { });
     } else {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
   };
 
@@ -103,10 +123,10 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
     <div
       ref={wrapperRef}
       className={cn(
-        "flex flex-col overflow-hidden border border-border shadow-soft transition-all duration-200",
+        "flex flex-col overflow-hidden border border-border shadow-soft transition-all duration-200 h-full w-full",
         fullscreen
-          ? "fixed inset-0 z-[9999] rounded-none bg-[#0f172a]"
-          : "rounded-card bg-white",
+          ? "fixed inset-0 z-[9999] rounded-none"
+          : "rounded-card bg-surface",
       )}
     >
       <Script
@@ -116,7 +136,10 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
       />
 
       {/* Header bar */}
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#0f172a] px-4 py-2.5">
+      <div className={cn(
+        "flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 transition-colors duration-200",
+        "bg-[var(--bg-elevated)] border-[var(--border-mid)] text-[var(--text-primary)]"
+      )}>
         {/* Symbol tabs */}
         <div className="flex items-center gap-1 overflow-x-auto">
           {SYMBOLS.map((item) => (
@@ -128,7 +151,7 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
                 "whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 symbol === item.value
                   ? "bg-success text-white"
-                  : "text-slate-400 hover:bg-white/10 hover:text-white",
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]",
               )}
             >
               {item.label}
@@ -137,7 +160,10 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
         </div>
 
         {/* Timeframe pills */}
-        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-white/5 p-0.5">
+        <div className={cn(
+          "flex shrink-0 items-center gap-0.5 rounded-lg p-0.5 transition-colors",
+          "bg-[var(--bg-overlay)]/45"
+        )}>
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf.value}
@@ -146,8 +172,8 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                 interval === tf.value
-                  ? "bg-white/15 text-white"
-                  : "text-slate-500 hover:text-slate-300",
+                  ? "bg-[var(--bg-overlay)] text-[var(--text-primary)] shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-overlay)]/40",
               )}
             >
               {tf.label}
@@ -159,29 +185,47 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
         <div className="flex shrink-0 items-center gap-1">
           <Button type="button" variant="secondary" size="icon"
             onClick={() => setReloadKey((v) => v + 1)} aria-label="Reload chart"
-            className="h-7 w-7 rounded-lg bg-transparent text-slate-400 hover:bg-white/10 hover:text-white">
+            className={cn(
+              "h-7 w-7 rounded-lg bg-transparent transition-colors",
+              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
+            )}>
             <RefreshCw className="h-3.5 w-3.5" />
           </Button>
           <a href={`https://www.tradingview.com/chart/?symbol=${symbol}`}
             target="_blank" rel="noopener noreferrer"
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white">
+            className={cn(
+              "rounded-lg p-1.5 transition-colors",
+              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
+            )}>
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
           <button type="button" onClick={toggleFullscreen}
             title={fullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white">
+            className={cn(
+              "rounded-lg p-1.5 transition-colors",
+              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
+            )}>
             {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
 
       {/* Chart area */}
-      <div className="relative min-h-0 flex-1" style={{ height: fullscreen ? "calc(100vh - 48px)" : "520px" }}>
+      <div className="relative min-h-0 flex-1">
         {!scriptReady && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#0f172a]">
+          <div className={cn(
+            "absolute inset-0 flex items-center justify-center transition-colors",
+            "bg-[var(--bg-base)]"
+          )}>
             <div className="text-center">
-              <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-600 border-t-success" />
-              <p className="mt-3 text-sm text-slate-400">Loading TradingView chart</p>
+              <div className={cn(
+                "mx-auto h-9 w-9 animate-spin rounded-full border-2",
+                "border-[var(--border-mid)] border-t-success"
+              )} />
+              <p className={cn(
+                "mt-3 text-sm",
+                "text-[var(--text-muted)]"
+              )}>Loading TradingView chart</p>
             </div>
           </div>
         )}

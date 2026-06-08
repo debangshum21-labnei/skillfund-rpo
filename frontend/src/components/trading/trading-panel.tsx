@@ -12,11 +12,11 @@ const SYMBOL_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 const MOCK_PRICES: Record<string, number> = {
-  "NASDAQ:AAPL":     189.5,
-  "FX:EURUSD":       1.0861,
+  "NASDAQ:AAPL": 189.5,
+  "FX:EURUSD": 1.0861,
   "BINANCE:BTCUSDT": 60620,
-  "OANDA:XAUUSD":    2326.5,
-  "NSE:NIFTY50":     22400,
+  "OANDA:XAUUSD": 2326.5,
+  "NSE:NIFTY50": 22400,
 };
 
 interface Order {
@@ -92,10 +92,10 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Button variant="success" onClick={() => placeOrder("Buy")}>Buy</Button>
-          <Button variant="danger"  onClick={() => placeOrder("Sell")}>Sell</Button>
+          <Button variant="danger" onClick={() => placeOrder("Sell")}>Sell</Button>
         </div>
 
-        <div className="rounded-xl border border-border bg-slate-50 px-4 py-3 flex items-center justify-between">
+        <div className="rounded-xl border border-border bg-[var(--bg-elevated)] px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-muted">Live price</span>
           {livePrice ? (
             <span className="text-lg font-semibold text-primary">
@@ -112,7 +112,7 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
             id="market"
             value={symbol}
             onChange={(e) => onSymbolChange(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm text-primary shadow-sm"
+            className="h-11 w-full rounded-xl border border-border bg-[var(--bg-surface)] px-3 text-sm text-primary shadow-sm"
           >
             {SYMBOLS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
@@ -132,7 +132,7 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
 
         <div className="space-y-2">
           <Label>Leverage</Label>
-          <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50 p-2">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-[var(--bg-elevated)] p-2">
             <Button type="button" variant="secondary" size="icon"
               onClick={() => setLeverage((v) => Math.max(1, v - 1))} aria-label="Decrease leverage">
               <Minus className="h-4 w-4" />
@@ -145,7 +145,7 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-slate-50 p-3 text-sm space-y-2">
+        <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3 text-sm space-y-2">
           <div className="flex justify-between">
             <span className="text-muted">Position size</span>
             <span className="font-medium text-primary">${positionSize.toFixed(2)}</span>
@@ -164,12 +164,12 @@ export function TradingPanel({ symbol, onSymbolChange }: Props) {
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase text-muted">Recent orders</p>
             {orders.map((o) => (
-              <div key={o.id} className="flex items-center justify-between rounded-lg border border-border bg-white px-3 py-2 text-xs">
+              <div key={o.id} className="flex items-center justify-between rounded-lg border border-border bg-[var(--bg-surface)] px-3 py-2 text-xs">
                 <div className="flex items-center gap-2">
                   {o.side === "Buy"
-                    ? <TrendingUp className="h-3 w-3 text-green-500" />
-                    : <TrendingDown className="h-3 w-3 text-red-500" />}
-                  <span className={o.side === "Buy" ? "font-semibold text-green-600" : "font-semibold text-red-600"}>
+                    ? <TrendingUp className="h-3 w-3" style={{ color: "var(--green)" }} />
+                    : <TrendingDown className="h-3 w-3" style={{ color: "var(--red)" }} />}
+                  <span className={o.side === "Buy" ? "font-semibold" : "font-semibold"} style={{ color: o.side === "Buy" ? "var(--green)" : "var(--red)" }}>
                     {o.side}
                   </span>
                   <span className="text-muted">{SYMBOL_LABELS[o.symbol] ?? o.symbol}</span>

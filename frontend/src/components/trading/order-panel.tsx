@@ -1,64 +1,84 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Minus, Plus, TrendingUp, TrendingDown, Zap } from "lucide-react";
+import { Minus, Plus, TrendingUp, TrendingDown, Zap, Target } from "lucide-react";
 import { SYMBOLS } from "@/components/trading/symbols";
+import { activeSession } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const MOCK_PRICES: Record<string, number> = {
-  "NASDAQ:AAPL":     189.5,
-  "FX:EURUSD":       1.0861,
+  "NASDAQ:AAPL": 189.5,
+  "FX:EURUSD": 1.0861,
   "BINANCE:BTCUSDT": 62021,
-  "OANDA:XAUUSD":    2326.5,
-  "NSE:NIFTY50":     22400,
+  "OANDA:XAUUSD": 2326.5,
+  "NSE:NIFTY50": 22400,
 };
 
 const MARGIN_PRESETS = [10, 25, 50, 75, 100];
 const MAX_DEMO_BALANCE = 105.40;
 
 interface Order {
-  id: number;
-  symbol: string;
-  side: "Buy" | "Sell";
-  margin: number;
-  leverage: number;
-  entryPrice: number;
-  time: string;
+  id: number; symbol: string; side: "Buy" | "Sell";
+  margin: number; leverage: number; entryPrice: number; time: string;
 }
 
-interface Props {
-  symbol: string;
-  onSymbolChange: (symbol: string) => void;
-}
+interface Props { symbol: string; onSymbolChange: (symbol: string) => void; }
 
 export function OrderPanel({ symbol, onSymbolChange }: Props) {
-  const [tab, setTab]           = useState<"Market" | "Limit">("Market");
-  const [side, setSide]         = useState<"Buy" | "Sell">("Buy");
+  const [tab, setTab] = useState<"Market" | "Limit">("Market");
+  const [side, setSide] = useState<"Buy" | "Sell">("Buy");
   const [leverage, setLeverage] = useState(5);
-  const [margin, setMargin]     = useState(22);
+  const [margin, setMargin] = useState(22);
   const [livePrice, setLivePrice] = useState<number | null>(null);
-  const [orders, setOrders]     = useState<Order[]>([]);
-  const [flash, setFlash]       = useState(false);
+  const [isMock, setIsMock] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [flash, setFlash] = useState(false);
 
   const positionSize = margin * leverage;
-  const lossBuffer   = ((1 / leverage) * 100).toFixed(1);
-  const symLabel     = SYMBOLS.find((s) => s.value === symbol)?.label ?? symbol;
+  const lossBuffer = ((1 / leverage) * 100).toFixed(1);
+  const symLabel = SYMBOLS.find((s) => s.value === symbol)?.label ?? symbol;
+  const sessionPct = Math.min((activeSession.profitPercent / activeSession.targetProfitPercent) * 100, 100);
 
   useEffect(() => {
-    setLivePrice(null);
+    setLivePrice(null); setIsMock(false);
     const ticker = symbol.split(":")[1];
     async function fetchPrice() {
       try {
-        const res  = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1m&range=1d`);
+        const res = await fetch(`/api/price?ticker=${ticker}&symbol=${encodeURIComponent(symbol)}`);
         const data = await res.json();
-        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-        setLivePrice(price ?? MOCK_PRICES[symbol] ?? null);
+        if (data.price) { setLivePrice(data.price); setIsMock(data.mock ?? false); }
+        else { setLivePrice(MOCK_PRICES[symbol] ?? null); setIsMock(true); }
       } catch {
-        setLivePrice(MOCK_PRICES[symbol] ?? null);
+        setLivePrice(MOCK_PRICES[symbol] ?? null); setIsMock(true);
       }
     }
     fetchPrice();
-    const id = setInterval(fetchPrice, 15000);
+    const id = setInterval(fetchPrice, 10000);
+    return () => clearInterval(id);
+  }, [symbol]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setLivePrice((prevPrice) => {
+        if (!prevPrice) return prevPrice;
+        let volatility = 0.0001;
+        if (symbol.includes("BTC")) {
+          volatility = 0.0003;
+        } else if (symbol.includes("EURUSD")) {
+          volatility = 0.00005;
+        }
+        const changePercent = (Math.random() - 0.5) * 2 * volatility;
+        const nextPrice = prevPrice * (1 + changePercent);
+        if (symbol.includes("EURUSD")) {
+          return parseFloat(nextPrice.toFixed(5));
+        } else if (symbol.includes("AAPL") || symbol.includes("XAUUSD")) {
+          return parseFloat(nextPrice.toFixed(2));
+        } else if (symbol.includes("NIFTY50")) {
+          return parseFloat(nextPrice.toFixed(1));
+        }
+        return parseFloat(nextPrice.toFixed(2));
+      });
+    }, 1000);
     return () => clearInterval(id);
   }, [symbol]);
 
@@ -69,97 +89,148 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
       ...prev.slice(0, 9),
     ]);
     setFlash(true);
-    setTimeout(() => setFlash(false), 600);
+    setTimeout(() => setFlash(false), 500);
   }
 
   function applyPreset(pct: number) {
     setMargin(Math.floor((MAX_DEMO_BALANCE * pct) / 100));
   }
 
-  const buyPrice  = livePrice ? livePrice * 1.0001 : null;
+  const buyPrice = livePrice ? livePrice * 1.0001 : null;
   const sellPrice = livePrice ? livePrice * 0.9999 : null;
 
-  return (
-    <div className="flex h-full flex-col bg-[#0f172a] text-sm text-white">
+  const priceStr = (p: number | null) =>
+    p ? p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "—";
 
-      {/* Bid / Ask display */}
-      <div className="grid grid-cols-2 border-b border-[#1e293b]">
-        <button
-          onClick={() => setSide("Sell")}
-          className={cn(
-            "flex flex-col items-center py-3 transition-colors",
-            side === "Sell" ? "bg-red-500/10" : "hover:bg-red-500/5"
-          )}
-        >
-          <span className="text-xs text-slate-500">SELL</span>
-          <span className={cn("text-xl font-bold tabular-nums", side === "Sell" ? "text-danger" : "text-slate-300")}>
-            {sellPrice ? sellPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "—"}
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", height: "100%",
+      background: "var(--bg-surface)",
+      borderLeft: "0.5px solid var(--border)",
+      fontSize: 13,
+    }}>
+      {/* Session progress bar */}
+      <div style={{
+        padding: "8px 12px",
+        borderBottom: "0.5px solid var(--border)",
+        background: "var(--bg-elevated)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--text-muted)" }}>
+            <Target size={11} /> Session goal
           </span>
-        </button>
-        <button
-          onClick={() => setSide("Buy")}
-          className={cn(
-            "flex flex-col items-center py-3 transition-colors",
-            side === "Buy" ? "bg-green-500/10" : "hover:bg-green-500/5"
-          )}
-        >
-          <span className="text-xs text-slate-500">BUY</span>
-          <span className={cn("text-xl font-bold tabular-nums", side === "Buy" ? "text-success" : "text-slate-300")}>
-            {buyPrice ? buyPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "—"}
+          <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--green)" }}>
+            +{activeSession.profitPercent.toFixed(1)}% / +{activeSession.targetProfitPercent}%
           </span>
-        </button>
+        </div>
+        <div style={{ height: 3, borderRadius: 99, background: "var(--bg-overlay)", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: 99,
+            background: sessionPct > 80 ? "var(--amber)" : "var(--green)",
+            width: `${sessionPct}%`,
+            transition: "width 0.6s ease",
+            boxShadow: `0 0 6px ${sessionPct > 80 ? "var(--amber-dim)" : "var(--green-glow)"}`,
+          }} />
+        </div>
       </div>
 
-      {/* Order type tabs */}
-      <div className="flex border-b border-[#1e293b]">
-        {(["Market", "Limit"] as const).map((t) => (
+      {/* Bid / Ask */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "0.5px solid var(--border)" }}>
+        {[
+          { label: "SELL", price: sellPrice, isSide: "Sell" as const, color: "var(--red)" },
+          { label: "BUY", price: buyPrice, isSide: "Buy" as const, color: "var(--green)" },
+        ].map(({ label, price, isSide, color }) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              "flex-1 py-2 text-xs font-semibold transition-colors",
-              tab === t ? "border-b-2 border-success text-success" : "text-slate-500 hover:text-slate-300"
-            )}
+            key={label}
+            onClick={() => setSide(isSide)}
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              padding: "10px 8px", cursor: "pointer", border: "none",
+              background: side === isSide ? (isSide === "Buy" ? "var(--green-dim)" : "var(--red-dim)") : "transparent",
+              borderBottom: side === isSide ? `2px solid ${color}` : "2px solid transparent",
+              transition: "all 0.15s",
+            }}
           >
-            {t}
+            <span style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.06em" }}>{label}</span>
+            <span style={{
+              fontSize: 17, fontFamily: "var(--font-mono)", fontWeight: 600,
+              color: side === isSide ? color : "var(--text-secondary)",
+              letterSpacing: "-0.02em",
+            }}>
+              {priceStr(price)}
+            </span>
           </button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Order type tabs */}
+      <div style={{ display: "flex", borderBottom: "0.5px solid var(--border)" }}>
+        {(["Market", "Limit"] as const).map((t) => (
+          <button key={t} onClick={() => setTab(t)} style={{
+            flex: 1, padding: "7px 0", fontSize: 12, fontWeight: 500, cursor: "pointer",
+            border: "none", background: "transparent",
+            color: tab === t ? "var(--text-primary)" : "var(--text-muted)",
+            borderBottom: tab === t ? "2px solid var(--green)" : "2px solid transparent",
+            transition: "all 0.15s",
+          }}>{t}</button>
+        ))}
+      </div>
 
-        {/* Market selector */}
+      {/* Form body */}
+      <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+
+        {/* Market */}
         <div>
-          <label className="mb-1 block text-xs text-slate-500">Market</label>
+          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Market</label>
           <select
-            value={symbol}
-            onChange={(e) => onSymbolChange(e.target.value)}
-            className="h-9 w-full rounded-lg border border-[#1e293b] bg-[#1e293b] px-3 text-sm text-white focus:border-success focus:outline-none"
+            value={symbol} onChange={(e) => onSymbolChange(e.target.value)}
+            style={{
+              width: "100%", height: 36, padding: "0 10px",
+              borderRadius: "var(--radius-sm)",
+              border: "0.5px solid var(--border-mid)",
+              background: "var(--bg-elevated)", color: "var(--text-primary)",
+              fontSize: 13, outline: "none", cursor: "pointer",
+            }}
           >
-            {SYMBOLS.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
+            {SYMBOLS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
 
-        {/* Margin input + presets */}
+        {/* Mock price indicator */}
+        {isMock && livePrice && (
+          <div style={{
+            padding: "5px 8px", borderRadius: "var(--radius-sm)",
+            background: "var(--amber-dim)", border: "0.5px solid rgba(245,158,11,0.2)",
+            fontSize: 11, color: "var(--amber)", display: "flex", alignItems: "center", gap: 5,
+          }}>
+            ⚡ Using reference price · live feed unavailable
+          </div>
+        )}
+
+        {/* Margin */}
         <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label className="text-xs text-slate-500">Margin ($)</label>
-            <span className="text-xs text-slate-500">Max: ${MAX_DEMO_BALANCE}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Margin ($)</label>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Max: ${MAX_DEMO_BALANCE}</span>
           </div>
           <input
-            type="number"
-            value={margin}
+            type="number" value={margin}
             onChange={(e) => setMargin(Number(e.target.value) || 0)}
-            className="h-9 w-full rounded-lg border border-[#1e293b] bg-[#1e293b] px-3 text-sm text-white focus:border-success focus:outline-none"
+            style={{
+              width: "100%", height: 36, padding: "0 10px",
+              borderRadius: "var(--radius-sm)",
+              border: "0.5px solid var(--border-mid)",
+              background: "var(--bg-elevated)", color: "var(--text-primary)",
+              fontSize: 13, outline: "none",
+            }}
           />
-          <div className="mt-2 grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-5 gap-1 mt-1.5">
             {MARGIN_PRESETS.map((pct) => (
               <button
                 key={pct}
+                type="button"
                 onClick={() => applyPreset(pct)}
-                className="rounded-md border border-[#1e293b] py-1 text-xs text-slate-400 transition-colors hover:border-success hover:text-success"
+                className="py-1 text-[11px] font-medium cursor-pointer rounded-sm border border-[var(--border-mid)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-all duration-150"
               >
                 {pct}%
               </button>
@@ -169,32 +240,29 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
 
         {/* Leverage */}
         <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label className="text-xs text-slate-500">Leverage</label>
-            <span className="text-xs font-bold text-white">{leverage}x</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Leverage</label>
+            <span style={{ fontSize: 12, fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--text-primary)" }}>{leverage}x</span>
           </div>
           <input
-            type="range"
-            min={1}
-            max={100}
-            value={leverage}
+            type="range" min={1} max={100} value={leverage}
             onChange={(e) => setLeverage(Number(e.target.value))}
-            className="w-full accent-success"
+            style={{ width: "100%", accentColor: "var(--green)" }}
           />
-          <div className="mt-1 flex justify-between text-[10px] text-slate-600">
-            <span>1x</span><span>25x</span><span>50x</span><span>75x</span><span>100x</span>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>
+            {["1x", "25x", "50x", "75x", "100x"].map(l => <span key={l}>{l}</span>)}
           </div>
-          {/* Quick leverage buttons */}
-          <div className="mt-2 grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-5 gap-1 mt-1.5">
             {[2, 5, 10, 20, 50].map((lv) => (
               <button
                 key={lv}
+                type="button"
                 onClick={() => setLeverage(lv)}
                 className={cn(
-                  "rounded-md border py-1 text-xs transition-colors",
+                  "py-1 text-[11px] font-medium cursor-pointer rounded-sm border transition-all duration-150",
                   leverage === lv
-                    ? "border-success bg-success/10 text-success"
-                    : "border-[#1e293b] text-slate-400 hover:border-slate-500"
+                    ? "border-[var(--green)] bg-[var(--green-dim)] text-[var(--green)]"
+                    : "border-[var(--border-mid)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                 )}
               >
                 {lv}x
@@ -203,69 +271,88 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
           </div>
         </div>
 
-        {/* Order summary */}
-        <div className="rounded-lg border border-[#1e293b] bg-[#1e293b]/50 p-3 space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-500">Position size</span>
-            <span className="font-semibold text-white">${positionSize.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-500">Loss buffer</span>
-            <span className="font-semibold text-white">{lossBuffer}%</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-500">Entry price</span>
-            <span className="font-semibold text-white">
-              {livePrice ? livePrice.toLocaleString(undefined, { maximumFractionDigits: 5 }) : "—"}
-            </span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-500">Mode</span>
-            <span className="rounded bg-green-900/40 px-1.5 text-success">Simulated</span>
-          </div>
+        {/* Summary */}
+        <div style={{
+          borderRadius: "var(--radius-sm)",
+          background: "var(--bg-elevated)",
+          border: "0.5px solid var(--border)",
+          padding: "8px 10px",
+          display: "flex", flexDirection: "column", gap: 5,
+        }}>
+          {[
+            ["Position size", `$${positionSize.toFixed(2)}`],
+            ["Loss buffer", `${lossBuffer}%`],
+            ["Entry price", livePrice ? livePrice.toLocaleString(undefined, { maximumFractionDigits: 5 }) : "—"],
+            ["Mode", "Simulated"],
+          ].map(([label, value]) => (
+            <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+              <span style={{ color: "var(--text-muted)" }}>{label}</span>
+              <span style={{
+                fontFamily: label === "Mode" ? "inherit" : "var(--font-mono)",
+                color: label === "Mode" ? "var(--green)" : "var(--text-primary)",
+                fontWeight: 500,
+              }}>{value}</span>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Place order button */}
+      {/* Place order CTA */}
+      <div style={{ padding: "10px 12px", borderTop: "0.5px solid var(--border)", flexShrink: 0 }}>
         <button
           onClick={placeOrder}
-          className={cn(
-            "w-full rounded-lg py-3 text-sm font-bold transition-all",
-            flash ? "scale-95" : "scale-100",
-            side === "Buy"
-              ? "bg-success text-white hover:bg-green-400"
-              : "bg-danger text-white hover:bg-red-400"
-          )}
+          className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
+          style={{
+            border: "none",
+            background: side === "Buy" ? "var(--green)" : "var(--red)",
+            color: "var(--text-primary)",
+            transform: flash ? "scale(0.97)" : "scale(1)",
+            boxShadow: side === "Buy"
+              ? "0 0 20px var(--green-glow)"
+              : "0 0 20px var(--red-dim)",
+          }}
         >
-          <span className="flex items-center justify-center gap-2">
-            <Zap className="h-4 w-4" />
-            {side} {symLabel} · {leverage}x
-          </span>
+          <Zap size={16} />
+          {side} {symLabel} · {leverage}x
         </button>
-
-        {/* Recent orders */}
-        {orders.length > 0 && (
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Recent orders</p>
-            <div className="space-y-1.5">
-              {orders.map((o) => (
-                <div key={o.id} className="flex items-center justify-between rounded-lg border border-[#1e293b] bg-[#1e293b]/50 px-3 py-2 text-xs">
-                  <div className="flex items-center gap-2">
-                    {o.side === "Buy"
-                      ? <TrendingUp className="h-3 w-3 text-success" />
-                      : <TrendingDown className="h-3 w-3 text-danger" />}
-                    <span className={o.side === "Buy" ? "font-semibold text-success" : "font-semibold text-danger"}>{o.side}</span>
-                    <span className="text-slate-500">{SYMBOLS.find((s) => s.value === o.symbol)?.label}</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white">@ {o.entryPrice.toLocaleString(undefined, { maximumFractionDigits: 5 })}</p>
-                    <p className="text-slate-500">{o.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Recent orders */}
+      {orders.length > 0 && (
+        <div style={{
+          borderTop: "0.5px solid var(--border)",
+          padding: "8px 12px",
+          maxHeight: 160, overflowY: "auto", flexShrink: 0,
+        }}>
+          <p style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+            Recent orders
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {orders.map((o) => (
+              <div key={o.id} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "5px 8px", borderRadius: "var(--radius-sm)",
+                background: "var(--bg-elevated)", border: "0.5px solid var(--border)",
+                fontSize: 11,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {o.side === "Buy"
+                    ? <TrendingUp size={11} color="var(--green)" />
+                    : <TrendingDown size={11} color="var(--red)" />}
+                  <span style={{ color: o.side === "Buy" ? "var(--green)" : "var(--red)", fontWeight: 600 }}>{o.side}</span>
+                  <span style={{ color: "var(--text-muted)" }}>{SYMBOLS.find((s) => s.value === o.symbol)?.label}</span>
+                </div>
+                <div style={{ textAlign: "right", fontFamily: "var(--font-mono)" }}>
+                  <p style={{ color: "var(--text-primary)", margin: 0 }}>
+                    @ {o.entryPrice.toLocaleString(undefined, { maximumFractionDigits: 5 })}
+                  </p>
+                  <p style={{ color: "var(--text-muted)", margin: 0 }}>{o.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

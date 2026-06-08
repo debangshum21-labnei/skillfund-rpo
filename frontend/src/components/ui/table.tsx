@@ -6,7 +6,7 @@ export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTab
 }
 
 export function THead({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn("text-xs uppercase tracking-wide text-slate-500", className)} {...props} />;
+  return <thead className={cn("text-xs uppercase tracking-wide text-[var(--text-muted)]", className)} {...props} />;
 }
 
 export function TBody({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
@@ -18,9 +18,9 @@ export function TR({ className, ...props }: React.HTMLAttributes<HTMLTableRowEle
 }
 
 export function TH({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn("px-3 py-3 font-semibold", className)} {...props} />;
+  return <th className={cn("px-3 py-3 font-semibold text-[var(--text-secondary)]", className)} {...props} />;
 }
 
 export function TD({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-3 py-3 text-slate-700", className)} {...props} />;
+  return <td className={cn("px-3 py-3 text-[var(--text-secondary)]", className)} {...props} />;
 }
