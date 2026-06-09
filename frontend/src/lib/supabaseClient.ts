@@ -1,8 +1,11 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { supabaseEnv } from "@/lib/supabaseEnv";
+
+const supabaseUrl = supabaseEnv.supabaseUrl;
+const supabaseAnonKey = supabaseEnv.supabaseAnonKey;
+
 
 // NOTE: This project uses Next.js App Router. We keep both server and browser clients.
 // For server-side auth, we rely on cookies from @supabase/ssr helpers.

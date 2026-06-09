@@ -1,12 +1,20 @@
-# Theme professional pass - TODO
+# TODO - Supabase Authentication Integration
 
-- [x] Inspect TradingView chart theme styling issues (replace hard-coded slate/hex with theme tokens)
-- [x] Update `frontend/src/components/trading/tradingview-chart.tsx` to use `--bg-*` / `--text-*` / `--border-*` consistently (including fullscreen/loading states)
-- [x] Update `frontend/src/components/trading/order-panel.tsx` for any remaining inconsistencies (CTA text color, hover/active polish)
-- [x] Sanity-check other trading components if quick regressions appear (optional)
-- [x] Run `frontend` build to ensure theme changes don't break compilation
+- [x] Step 1: Create API routes for auth: register, login, logout
 
-- [x] Run `npm run lint` and `npm run build` in `frontend/`
-- [ ] Manual verification: light/dark + fullscreen + loading spinner + hover/active
+- [x] Step 2: Implement register form submission -> POST /api/auth/register -> redirect on success
+
+- [x] Step 3: Implement login form submission -> POST /api/auth/login -> redirect on success
+
+
+- [x] Step 4: Implement session check + route protection in middleware for /dashboard and /terminal
+
+- [x] Step 5: Add logout control (minimal) in navbar calling /api/auth/logout
+
+- [x] Step 6: Add/verify profile + account creation logic after Supabase signUp (profiles + accounts tables)
+
+- [x] Step 7: Run lint/build and do manual testing steps
+
+- [x] Step 8: List all modified/created files
 
 

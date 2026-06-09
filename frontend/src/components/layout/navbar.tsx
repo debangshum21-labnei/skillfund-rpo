@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, TrendingUp } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LogoutButton } from "@/components/layout/auth/logout-button";
+
 
 const navItems = [
   { href: "#how-it-works", label: "How it works" },
@@ -91,23 +93,30 @@ export function Navbar() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
           <ThemeToggle />
-          <Link
-            href="/login"
-            style={{
-              padding: "7px 14px",
-              borderRadius: "var(--radius-sm)",
-              textDecoration: "none",
-              fontSize: 13,
-              fontWeight: 500,
-              color: "var(--text-secondary)",
-              border: "0.5px solid var(--border-mid)",
-              background: "transparent",
-              transition: "all 0.15s",
-            }}
-            className="hidden sm:inline-flex"
-          >
-            Login
-          </Link>
+
+          <div className="hidden sm:inline-flex">
+            <Link
+              href="/login"
+              style={{
+                padding: "7px 14px",
+                borderRadius: "var(--radius-sm)",
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 500,
+                color: "var(--text-secondary)",
+                border: "0.5px solid var(--border-mid)",
+                background: "transparent",
+                transition: "all 0.15s",
+              }}
+            >
+              Login
+            </Link>
+          </div>
+
+          <div className="hidden sm:inline-flex">
+            <LogoutButton />
+          </div>
+
           <Link
             href="/register"
             style={{
