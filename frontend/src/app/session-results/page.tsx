@@ -1,113 +1,85 @@
-import { CheckCircle2, TrendingUp, Wallet } from "lucide-react";
-import { AppShell } from "@/components/layout/sidebar";
-import { BalanceCard } from "@/components/dashboard/balance-card";
-import { CooldownTimer } from "@/components/dashboard/cooldown-timer";
-import { RewardProgress } from "@/components/dashboard/reward-progress";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { completedSession, wallets } from "@/lib/mock-data";
-import { formatCurrency, formatPercent } from "@/lib/utils";
+"use client";
 
-export default function SessionResultsPage() {
+import Link from "next/link";
+import { useState } from "react";
+import { TrendingUp, Loader2 } from "lucide-react";
+import { PasswordInput, Input, Label } from "@/components/ui/input";
+
+export default function LoginPage() {
+  const [loading, setLoading] = useState(false);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => setLoading(false), 1800);
+  }
+
   return (
-    <AppShell
-      active="/session-results"
-      title="Session results"
-      subtitle="Review settlement, reward earned, updated balance, and cooldown before the next session."
-    >
-      <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-success">
-                <CheckCircle2 className="h-5 w-5" />
-              </span>
-              <div>
-                <CardTitle>Profit target reached</CardTitle>
-                <p className="text-sm text-muted">Session {completedSession.id} completed at +20% demo profit.</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3">
-            <ResultMetric label="Profit/Loss" value={formatPercent(completedSession.profitPercent)} tone="success" />
-            <ResultMetric label="Reward earned" value={formatCurrency(400, "INR")} tone="success" />
-            <ResultMetric label="Updated balance" value={formatCurrency(9150, "INR")} tone="neutral" />
-          </CardContent>
-        </Card>
+    <main style={{
+      minHeight: "100vh", display: "flex", alignItems: "center",
+      justifyContent: "center", background: "var(--bg-base)", padding: "24px 16px",
+    }}>
+      <div style={{
+        width: "100%", maxWidth: 380,
+        background: "var(--bg-surface)",
+        border: "0.5px solid var(--border)",
+        borderRadius: "var(--radius-xl)",
+        padding: 28, boxShadow: "var(--shadow-soft)",
+      }}>
+        {/* Logo */}
+        <Link href="/" style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          textDecoration: "none", color: "var(--text-primary)",
+          fontWeight: 600, fontSize: 16, letterSpacing: "-0.02em", marginBottom: 24,
+        }}>
+          <span style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 30, height: 30, borderRadius: "var(--radius-sm)",
+            background: "var(--green)", color: "#000",
+          }}><TrendingUp size={14} /></span>
+          SkillFund
+        </Link>
 
-        <div className="space-y-4">
-          <CooldownTimer minutes={15} />
-          <Button className="w-full" disabled>
-            Start new session
-          </Button>
-        </div>
+        <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 4px", color: "var(--text-primary)" }}>
+          Welcome back
+        </h1>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 24px" }}>
+          Sign in to your mock trading console.
+        </p>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <Label htmlFor="password">Password</Label>
+            <PasswordInput id="password" placeholder="••••••••" required />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: 4, height: 42, borderRadius: "var(--radius-md)",
+              border: "none", cursor: loading ? "not-allowed" : "pointer",
+              background: "var(--green)", color: "#000",
+              fontWeight: 600, fontSize: 14,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              opacity: loading ? 0.7 : 1, transition: "opacity 0.15s",
+            }}
+          >
+            {loading ? <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Signing in…</> : "Login"}
+          </button>
+        </form>
+
+        <p style={{ textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginTop: 18 }}>
+          New to SkillFund?{" "}
+          <Link href="/register" style={{ color: "var(--green)", textDecoration: "none", fontWeight: 500 }}>
+            Create account
+          </Link>
+        </p>
       </div>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Settlement summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50 p-4">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="h-5 w-5 text-success" />
-                <span className="text-sm text-muted">Demo wallet result</span>
-              </div>
-              <span className="font-semibold text-success">+$20.00</span>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50 p-4">
-              <div className="flex items-center gap-3">
-                <Wallet className="h-5 w-5 text-primary" />
-                <span className="text-sm text-muted">Real wallet settlement</span>
-              </div>
-              <span className="font-semibold text-primary">+₹400</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Reward tier achieved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RewardProgress progressPercent={completedSession.profitPercent} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <BalanceCard
-          label="Real balance"
-          amount={wallets.realBalance.amount + 400}
-          currency="INR"
-          detail="After mock reward settlement"
-        />
-        <BalanceCard
-          label="Demo balance reset"
-          amount={100}
-          currency="USD"
-          detail="Next session starts from mapped demo capital"
-        />
-      </div>
-    </AppShell>
-  );
-}
-
-function ResultMetric({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "success" | "neutral";
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-slate-50 p-4">
-      <p className="text-sm text-muted">{label}</p>
-      <p className={tone === "success" ? "mt-2 text-2xl font-semibold text-success" : "mt-2 text-2xl font-semibold text-primary"}>
-        {value}
-      </p>
-    </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </main>
   );
 }
