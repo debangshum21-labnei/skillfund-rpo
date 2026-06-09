@@ -11,7 +11,7 @@ const buttonVariants = cva(
         primary:   "bg-[var(--text-primary)] text-[var(--bg-base)] hover:opacity-90",
         secondary: "border border-[var(--border-mid)] bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:bg-[var(--bg-overlay)]",
         ghost:     "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]",
-        success:   "bg-[var(--green)] text-black font-semibold hover:opacity-90 shadow-[0_0_16px_var(--green-glow)]",
+        success:   "bg-[var(--green)] text-white font-semibold hover:opacity-90 shadow-[0_0_16px_var(--green-glow)]",
         danger:    "bg-[var(--red)] text-white font-semibold hover:opacity-90",
         outline:   "border border-[var(--border-mid)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]",
       },

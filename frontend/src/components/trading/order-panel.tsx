@@ -198,9 +198,9 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
 
         {/* Mock price indicator */}
         {isMock && livePrice && (
-          <div style={{
+          <div           style={{
             padding: "5px 8px", borderRadius: "var(--radius-sm)",
-            background: "var(--amber-dim)", border: "0.5px solid rgba(245,158,11,0.2)",
+            background: "var(--amber-dim)", border: "0.5px solid var(--amber)",
             fontSize: 11, color: "var(--amber)", display: "flex", alignItems: "center", gap: 5,
           }}>
             ⚡ Using reference price · live feed unavailable
@@ -301,11 +301,11 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
       <div style={{ padding: "10px 12px", borderTop: "0.5px solid var(--border)", flexShrink: 0 }}>
         <button
           onClick={placeOrder}
-          className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
+          className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 hover:opacity-90"
           style={{
             border: "none",
             background: side === "Buy" ? "var(--green)" : "var(--red)",
-            color: "var(--text-primary)",
+            color: "#FFFFFF",
             transform: flash ? "scale(0.97)" : "scale(1)",
             boxShadow: side === "Buy"
               ? "0 0 20px var(--green-glow)"

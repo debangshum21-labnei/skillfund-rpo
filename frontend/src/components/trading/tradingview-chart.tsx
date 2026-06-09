@@ -59,16 +59,23 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
   const [interval, setInterval] = useState("60");
   const [fullscreen, setFullscreen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [toolbarBg, setToolbarBg] = useState("#161D2E");
 
   useEffect(() => {
     // Set initial theme
     const isLight = document.documentElement.classList.contains("light");
     setTheme(isLight ? "light" : "dark");
 
+    // Read toolbar bg color from CSS variable
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg-elevated").trim();
+    if (bg) setToolbarBg(bg);
+
     // Observe class list changes to toggle theme dynamically
     const observer = new MutationObserver(() => {
       const currentIsLight = document.documentElement.classList.contains("light");
       setTheme(currentIsLight ? "light" : "dark");
+      const updatedBg = getComputedStyle(document.documentElement).getPropertyValue("--bg-elevated").trim();
+      if (updatedBg) setToolbarBg(updatedBg);
     });
 
     observer.observe(document.documentElement, {
@@ -94,7 +101,7 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
       theme,
       style: "1",
       locale: "en",
-      toolbar_bgcolor: theme === "light" ? "#f1f5f9" : "#0f172a",
+      toolbar_bgcolor: toolbarBg,
       enable_publishing: false,
       allow_symbol_change: false,
       hide_side_toolbar: false,

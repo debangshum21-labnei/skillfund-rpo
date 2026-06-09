@@ -74,10 +74,13 @@
 @theme {
   --color-background: var(--bg-base);
   --color-foreground: var(--text-primary);
-  --color-primary:    var(--text-primary);
-  --color-secondary:  var(--bg-elevated);
+  --color-primary:    #0B1220;
+  --color-primary-foreground: #F0F4FF;
+  --color-accent:     var(--green);
+  --color-secondary:  var(--bg-overlay);
   --color-success:    var(--green);
   --color-danger:     var(--red);
+  --color-warning:    var(--amber);
   --color-surface:    var(--bg-surface);
   --color-muted:      var(--text-secondary);
   --color-border:     var(--border);
@@ -107,7 +110,9 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-button, input, select, textarea { font: inherit; }
+input, select, textarea { font: inherit; }
+
+select option { background: var(--bg-elevated); color: var(--text-primary); }
 
 ::selection { background: var(--green-glow); }
 

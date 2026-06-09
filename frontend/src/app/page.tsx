@@ -83,7 +83,7 @@ export default function LandingPage() {
         <Section id="how-it-works" eyebrow="Flow" title="How it works">
           <div className="grid gap-4 md:grid-cols-4">
             {["Deposit money", "Receive demo balance", "Trade a session", "Earn or absorb settlement"].map((step, index) => (
-              <div key={step} className="rounded-card border border-border bg-white p-5 shadow-sm">
+              <div key={step} className="rounded-card border border-border bg-surface p-5 shadow-sm">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white">
                   {index + 1}
                 </span>
