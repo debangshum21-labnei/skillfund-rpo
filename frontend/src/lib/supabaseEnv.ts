@@ -13,9 +13,21 @@ function requireEnv(name: string): string {
 }
 
 export const supabaseEnv = {
-    supabaseUrl: requireEnv("NEXT_PUBLIC_SUPABASE_URL"),
-    supabaseAnonKey: requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    // Avoid crashing the entire app in environments where env vars are not provided.
+    // If these are missing, Supabase client will fail on usage with clearer errors.
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
 };
+
+export function getRequiredSupabaseUrl() {
+    return requireEnv("NEXT_PUBLIC_SUPABASE_URL");
+}
+
+export function getRequiredSupabaseAnonKey() {
+    return requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+}
+
+
 
 

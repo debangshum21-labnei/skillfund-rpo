@@ -10,12 +10,18 @@ export function LogoutButton({ className }: { className?: string }) {
     async function onLogout() {
         setSubmitting(true);
         try {
-            await fetch("/api/auth/logout", { method: "POST" });
+            const res = await fetch("/api/auth/logout", { method: "POST" });
+            if (!res.ok) {
+                // Keep original flow; still attempt to refresh UI state.
+            }
         } finally {
             setSubmitting(false);
-            router.replace("/");
+            // Force UI + server components to re-read cookies.
+            router.refresh();
+            router.replace("/login");
         }
     }
+
 
     return (
         <button

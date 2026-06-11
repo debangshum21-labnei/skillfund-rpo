@@ -1,20 +1,9 @@
-# TODO - Supabase Authentication Integration
+# TODO - Auth & Session Audit Fixes (Next.js + Supabase)
 
-- [x] Step 1: Create API routes for auth: register, login, logout
+- [x] 1) Implement session-aware Navbar (client-side `getSession()` + `onAuthStateChange`) to fix Login/Start visibility.
+- [x] 2) Fix LogoutButton to ensure UI updates immediately after logout (force refresh / re-check auth state).
+- [x] 3) Extend middleware to also redirect authenticated users away from `/login` and `/register`, and optionally ensure `/register` is protected.
 
-- [x] Step 2: Implement register form submission -> POST /api/auth/register -> redirect on success
-
-- [x] Step 3: Implement login form submission -> POST /api/auth/login -> redirect on success
-
-
-- [x] Step 4: Implement session check + route protection in middleware for /dashboard and /terminal
-
-- [x] Step 5: Add logout control (minimal) in navbar calling /api/auth/logout
-
-- [x] Step 6: Add/verify profile + account creation logic after Supabase signUp (profiles + accounts tables)
-
-- [x] Step 7: Run lint/build and do manual testing steps
-
-- [x] Step 8: List all modified/created files
-
+- [ ] 4) Run `npm run lint` and `npm run build` to ensure no auth-related build errors.
+- [ ] 5) Provide verification steps for login/register/logout + route protection.
 
