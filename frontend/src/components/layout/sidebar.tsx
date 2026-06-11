@@ -20,6 +20,7 @@ import { formatCurrency } from "@/lib/utils";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/account", label: "Account", icon: CreditCard },
   { href: "/deposit", label: "Deposit", icon: CreditCard },
   { href: "/terminal", label: "Terminal", icon: LineChart },
   { href: "/session-results", label: "Results", icon: Trophy },
