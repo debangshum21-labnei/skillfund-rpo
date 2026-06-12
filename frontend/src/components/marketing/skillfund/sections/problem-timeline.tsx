@@ -50,15 +50,31 @@ export function ProblemTimeline() {
     );
 
     return (
-        <section id="problem" className="skillfund-section relative py-28">
+        <section id="problem" className="skillfund-section relative py-28" aria-label="The real blocker">
             <div className="app-container">
                 <div className="mb-10 max-w-3xl">
-                    <p className="eyebrow">The Problem</p>
+                    <p className="eyebrow">The real blocker</p>
 
                     <h2 className="skillfund-h2">
                         MOST TRADERS NEVER REACH REAL CAPITAL.
                     </h2>
+
+                    <p className="mt-5 text-lg leading-8" style={{ color: "rgba(243,246,255,0.88)" }}>
+                        Skill isn’t missing. Opportunity is. Most traders stop before they can trade with the capital their process deserves.
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 backdrop-blur">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
+                            Skill grows. Capital doesn’t.
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 backdrop-blur">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+                            Performance should create opportunity.
+                        </span>
+                    </div>
                 </div>
+
 
                 <div ref={ref} className="relative mx-auto max-w-4xl">
                     <div
@@ -68,7 +84,7 @@ export function ProblemTimeline() {
                     />
                 </div>
 
-                <ol className="skillfund-timeline" aria-label="Trading timeline">
+                <ol className="skillfund-timeline" aria-label="Trader journey timeline showing the progression from learning to giving up">
                     {items.map((it, idx) => (
                         <li
                             key={it.label}
@@ -78,7 +94,7 @@ export function ProblemTimeline() {
                                 animationDelay: `${idx * 120}ms`,
                             }}
                         >
-                            <div className="skillfund-timelineDot" />
+                            <div className="skillfund-timelineDot" aria-hidden="true" />
 
                             <div className="skillfund-timelineCard">
                                 <div className="skillfund-timelineLabel">

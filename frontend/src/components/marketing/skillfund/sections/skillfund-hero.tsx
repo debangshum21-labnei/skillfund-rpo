@@ -52,11 +52,12 @@ export function SkillfundHero() {
         <section
             ref={containerRef}
             className="skillfund-hero relative min-h-[100vh] overflow-hidden bg-[#050505] text-white"
+            aria-label="Hero section"
         >
             <div className="skillfund-hero__bg" aria-hidden="true" />
             <div className="skillfund-hero__noise" aria-hidden="true" />
 
-            <div className="absolute inset-0">
+            <div className="absolute inset-0" aria-hidden="true">
                 {particles.map((p, i) => (
                     <span
                         key={i}
@@ -78,19 +79,29 @@ export function SkillfundHero() {
                 <div className="relative max-w-3xl">
                     <div className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm" style={{ color: "rgba(255,255,255,0.88)" }}>
 
+
                         <span className="h-2 w-2 rounded-full bg-[#10B981]" />
-                        Premium, rules-first demo trading → real rewards (mocked MVP)
+                        Skill first. Outcomes capped. Rewards based on performance.
                     </div>
 
                     <h1 className="mt-6 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
-                        TURN TRADING SKILL INTO REAL REWARDS.
+                        SKILL GROWS. CAPITAL DOESN’T.
                     </h1>
 
-                    <p className="mt-6 max-w-2xl text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
-
-                        SkillFund bridges the gap between trading skill and opportunity.
-                        Start with a small deposit. Trade with demo capital. Earn rewards based on performance.
+                    <p className="mt-6 max-w-2xl text-lg leading-8 skillfund-text-88">
+                        SkillFund turns your demo trading into bounded, rules-first rewards.
+                        You’re not “hoping for volatility”—you’re executing a process with measurable outcomes.
                     </p>
+
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 backdrop-blur">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" /> Performance → reward mapping
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 backdrop-blur">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" /> Session caps keep outcomes bounded
+                        </span>
+                    </div>
+
 
                     <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
                         <Button asChild size="lg" className="magnetic bg-white text-[#050505] hover:bg-white/90">
@@ -135,6 +146,8 @@ export function SkillfundHero() {
                                 <div className="skillfund-step">→</div>
                                 <div className="skillfund-step">Balance <span className="accent">₹105</span></div>
                             </div>
+
+                            <div className="skillfund-chartLine mt-4" aria-hidden="true" />
 
                             <div className="skillfund-hero__chart" aria-hidden="true">
                                 <svg viewBox="0 0 720 160" preserveAspectRatio="none" role="presentation" focusable="false">
@@ -242,6 +255,8 @@ export function SkillfundHero() {
                         </div>
                     </div>
                 </div>
+
+                <div className="skillfund-chartCandles mx-auto mt-6 max-w-[720px]" aria-hidden="true" />
             </div>
         </section>
     );

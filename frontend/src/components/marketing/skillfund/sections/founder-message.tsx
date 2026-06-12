@@ -2,7 +2,7 @@
 
 export function FounderMessage() {
     return (
-        <section className="skillfund-section py-28" id="founder">
+        <section className="skillfund-section py-28" id="founder" aria-label="Founder message">
             <div className="app-container">
                 <div className="glassPanel p-8 md:p-12">
                     <p className="eyebrow">Founder message</p>

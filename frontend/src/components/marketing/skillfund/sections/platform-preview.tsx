@@ -33,7 +33,7 @@ export function PlatformPreview() {
     }, []);
 
     return (
-        <section className="skillfund-section py-28" id="platform">
+        <section className="skillfund-section py-28" id="platform" aria-label="Platform preview">
             <div className="app-container">
                 <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
                     <div>

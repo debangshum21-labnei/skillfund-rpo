@@ -50,6 +50,18 @@
   --radius-card: 10px;
   --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 0.5px var(--border);
+
+  /* Typography scale */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --heading-1: clamp(36px, 5vw, 56px);
+  --heading-2: clamp(28px, 3vw, 44px);
+  --heading-3: clamp(22px, 2.4vw, 32px);
 }
 
 /* ── Light theme ── */
@@ -66,7 +78,7 @@
 
   --text-primary: #0F172A;
   --text-secondary: #475569;
-  --text-muted: #94A3B8;
+  --text-muted: #475569;
 
   --green: #16A34A;
   --green-dim: rgba(22, 163, 74, 0.08);
@@ -114,8 +126,8 @@ body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background 0.2s, color 0.2s;
@@ -607,6 +619,31 @@ select option {
   animation: sf-linePulse 2.8s ease-in-out infinite;
 }
 
+.rewardCalcVisual {
+  height: 320px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background:
+    radial-gradient(260px circle at 40% 30%, rgba(59, 130, 246, 0.22), transparent 60%),
+    radial-gradient(260px circle at 70% 70%, rgba(16, 185, 129, 0.20), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(18px);
+  position: relative;
+  overflow: hidden;
+}
+
+.rewardCalcVisual::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 20%;
+  height: 40%;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.0), rgba(59, 130, 246, 0.30), rgba(16, 185, 129, 0.30), rgba(59, 130, 246, 0.0));
+  opacity: 0.35;
+  border-radius: 22px;
+}
 
 .skillfund-chartCandles {
   height: 70px;
@@ -627,6 +664,26 @@ select option {
 .skillfund-section {
   background: #050505;
 }
+
+/* ── SkillFund landing contrast helpers ── */
+.skillfund-muted {
+  color: rgba(227, 232, 255, 0.72);
+}
+
+.skillfund-text-88 {
+  color: rgba(227, 232, 255, 0.88);
+}
+
+/* Ensure light theme still readable when sections use hard-coded dark backgrounds */
+.light .skillfund-section {
+  background: #050505;
+}
+
+.light .skillfund-muted,
+.light .skillfund-text-88 {
+  color: rgba(243, 246, 255, 0.88);
+}
+
 
 .eyebrow {
   color: rgba(227, 232, 255, 0.72);
@@ -674,9 +731,10 @@ select option {
 
 
 .glassLabel {
-  color: rgba(227, 232, 255, 0.72);
+  color: rgba(227, 232, 255, 0.80);
   font-size: 12px;
   letter-spacing: 0.01em;
+  font-weight: 500;
 }
 
 
@@ -935,6 +993,10 @@ select option {
     grid-template-columns: 1fr;
     top: 70px;
     height: auto;
+  }
+
+  .skillfund-pinnedLeft {
+    min-height: 240px;
   }
 
   .skillfund-pinnedSpacer {
@@ -1207,6 +1269,46 @@ select option {
   transform: translate3d(0, 1px, 0) scale(0.99);
 }
 
+
+/* ── Mobile responsiveness ── */
+@media (max-width: 640px) {
+  .skillfund-section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .app-container {
+    width: calc(100% - 1.5rem);
+  }
+
+  .skillfund-hero__glassCard {
+    border-radius: 18px;
+  }
+
+  .skillfund-hero__glassInner {
+    padding: 12px;
+  }
+
+  .skillfund-stepRow {
+    gap: 6px;
+  }
+
+  .skillfund-step {
+    font-size: 11px;
+    padding: 5px 7px;
+    border-radius: 10px;
+  }
+
+  .glassCard {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .trustCard {
+    min-height: 100px;
+    padding: 12px;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
 

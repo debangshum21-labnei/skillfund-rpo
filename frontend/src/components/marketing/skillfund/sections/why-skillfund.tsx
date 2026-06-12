@@ -29,7 +29,7 @@ export function WhySkillfund() {
 
 
     return (
-        <section id="why" className="skillfund-section relative py-28">
+        <section id="why" className="skillfund-section relative py-28" aria-label="Why SkillFund exists">
             <div className="app-container">
                 <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
                     <div>

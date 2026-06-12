@@ -35,9 +35,26 @@ export function SkillfundLanding() {
 
     return (
         <>
+            <a
+                href="#main-content"
+                style={{
+                    position: "absolute",
+                    width: 1,
+                    height: 1,
+                    padding: 0,
+                    margin: -1,
+                    overflow: "hidden",
+                    clip: "rect(0,0,0,0)",
+                    whiteSpace: "nowrap",
+                    borderWidth: 0,
+                }}
+                className="focus-within:static focus-within:h-auto focus-within:w-auto focus-within:overflow-visible focus-within:clip-auto focus-within:p-4 focus-within:m-0 focus-within:text-base focus-within:bg-green focus-within:text-white focus-within:z-50"
+            >
+                Skip to main content
+            </a>
             <Navbar />
             <SkillfundHero />
-            <main>
+            <main id="main-content" aria-label="Main content">
                 <ProblemTimeline />
                 <WhySkillfund />
                 <HowItWorksPinned />

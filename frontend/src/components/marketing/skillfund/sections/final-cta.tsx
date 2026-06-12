@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function FinalCta() {
     return (
-        <section className="skillfund-finalCta relative py-24">
+        <section className="skillfund-finalCta relative py-24" aria-label="Call to action">
             <div className="app-container">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="skillfund-finalTitle">READY TO PUT YOUR TRADING SKILL TO WORK?</h2>

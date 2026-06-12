@@ -1,14 +1,19 @@
-# TODO
+# TODO — SkillFund landing conversion & storytelling audit
 
-## Task: Redesign SkillFund FAQ into a premium fintech knowledge center
-
-- [ ] Implement categorized FAQ groups (Understanding, Rewards & Sessions, Risk & Transparency, Future Vision) in `marketing-faq.tsx`
-- [ ] Preserve all existing FAQ questions/answers verbatim; only reorganize
-- [ ] Add trust badges above FAQ
-- [ ] Add mini process diagram (Deposit → Trade → Performance → Reward)
-- [ ] Add visual separators between groups
-- [ ] Upgrade typography hierarchy + spacing/readability
-- [ ] Apply premium glassmorphism card styling
-- [ ] Add subtle CSS/transition animations
-- [ ] Run frontend typecheck/lint/build to ensure correctness
-
+- [x] Step 1: Add trader-focused micro-story callouts and premium copy improvements in each existing landing section (no new sections; no business logic changes).
+- [ ] Step 2: Identify and fill visually empty areas inside each existing section with trading-related visuals that explain the SkillFund model (equity curves, reward progress cards, trackers, session status cards, metric badges, capital growth visuals).
+- [ ] Step 3: Improve visuals in:
+  - [ ] SkillfundHero
+  - [ ] ProblemTimeline
+  - [ ] WhySkillfund
+  - [ ] HowItWorksPinned
+  - [ ] RewardExample
+  - [ ] RewardCalculator (visual reinforcement only; do not change math/business logic)
+  - [ ] TrustArchitecture
+  - [ ] PlatformPreview
+  - [ ] MarketingFaq
+  - [ ] FounderMessage
+  - [ ] FinalCta
+- [ ] Step 4: Fix dark-mode contrast issues across the landing components by removing/adjusting fragile inline rgba colors and ensuring readability in both themes.
+- [ ] Step 5: Ensure every section has both information + visual reinforcement.
+- [ ] Step 6: Run frontend build and verify landing renders in light and dark themes.

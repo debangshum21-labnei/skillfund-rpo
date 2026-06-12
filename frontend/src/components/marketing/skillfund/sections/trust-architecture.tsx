@@ -23,7 +23,7 @@ export function TrustArchitecture() {
     const [tilt, setTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 30 });
 
     return (
-        <section className="skillfund-section py-28" id="trust">
+        <section className="skillfund-section py-28" id="trust" aria-label="Trust architecture">
             <div className="app-container">
                 <div className="mb-10 max-w-3xl">
                     <p className="eyebrow">Trust architecture</p>

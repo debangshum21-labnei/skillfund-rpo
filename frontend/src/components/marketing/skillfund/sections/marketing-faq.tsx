@@ -149,7 +149,7 @@ export function MarketingFaq() {
                 id: "understanding",
                 title: "Understanding SkillFund",
                 subtitle: "What it is and why it’s different.",
-                icon: <span className="text-[18px]">🧠</span>,
+                icon: <span className="text-[18px]" aria-hidden="true">🧠</span>,
                 faqs: [
                     faqs.find((f) => f.question === "What is SkillFund?")!,
                     faqs.find((f) => f.question === "How does SkillFund work?")!,
@@ -160,7 +160,7 @@ export function MarketingFaq() {
                 id: "rewards",
                 title: "Rewards & Sessions",
                 subtitle: "How outcomes map to performance.",
-                icon: <span className="text-[18px]">🏁</span>,
+                icon: <span className="text-[18px]" aria-hidden="true">🏁</span>,
                 faqs: [
                     faqs.find((f) => f.question === "How are rewards calculated?")!,
                     faqs.find((f) => f.question === "What happens after a profitable session?")!,
@@ -172,7 +172,7 @@ export function MarketingFaq() {
                 id: "risk",
                 title: "Risk & Transparency",
                 subtitle: "Bounded risk and clear rules.",
-                icon: <span className="text-[18px]">🛡️</span>,
+                icon: <span className="text-[18px]" aria-hidden="true">🛡️</span>,
                 faqs: [
                     faqs.find((f) => f.question === "Can I lose more than my balance?")!,
                     faqs.find((f) => f.question === "Why use demo capital?")!,
@@ -183,7 +183,7 @@ export function MarketingFaq() {
                 id: "future",
                 title: "Future Vision",
                 subtitle: "From MVP clarity to production readiness.",
-                icon: <span className="text-[18px]">🔮</span>,
+                icon: <span className="text-[18px]" aria-hidden="true">🔮</span>,
                 faqs: [
                     faqs.find((f) => f.question === "How do withdrawals work?")!,
                 ],
@@ -205,7 +205,7 @@ export function MarketingFaq() {
     }
 
     return (
-        <section className="skillfund-faq">
+        <section className="skillfund-faq" aria-label="Frequently asked questions">
             <div className="mx-auto w-full rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.04))] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>

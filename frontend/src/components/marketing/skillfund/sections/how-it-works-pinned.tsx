@@ -47,7 +47,7 @@ export function HowItWorksPinned() {
     const activeIndex = Math.min(steps.length - 1, Math.floor(progress * steps.length));
 
     return (
-        <section id="how-it-works" className="skillfund-section relative py-28">
+        <section id="how-it-works" className="skillfund-section relative py-28" aria-label="How it works">
             <div className="app-container">
                 <div className="mb-10 max-w-3xl">
                     <p className="eyebrow">How it works</p>

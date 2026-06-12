@@ -1,12 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { ShieldCheck, TrendingUp } from "lucide-react";
+import { ShieldCheck, TrendingUp, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { AuthProvider } from "@/components/layout/auth/session-provider";
 import { AuthLinks } from "@/components/layout/auth/auth-links";
-
-
-
-
 
 const navItems = [
   { href: "#how-it-works", label: "How it works" },
@@ -16,9 +15,10 @@ const navItems = [
 ];
 
 export function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <AuthProvider>
-
       <header
         style={{
           position: "sticky",
@@ -78,6 +78,7 @@ export function Navbar() {
               justifyContent: "center",
             }}
             className="hidden md:flex"
+            aria-label="Main navigation"
           >
             {navItems.map((item) => (
               <a
@@ -98,18 +99,77 @@ export function Navbar() {
           </nav>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              className="flex md:hidden"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: "var(--radius-sm)",
+                border: "0.5px solid var(--border-mid)",
+                background: "var(--bg-elevated)",
+                color: "var(--text-secondary)",
+                cursor: "pointer",
+                transition: "all 0.15s",
+                flexShrink: 0,
+              }}
+            >
+              {mobileOpen ? <X size={15} /> : <Menu size={15} />}
+            </button>
+
             <ThemeToggle />
-
             <AuthLinks />
-
-
           </div>
         </div>
+
+        {mobileOpen && (
+          <div
+            style={{
+              borderTop: "0.5px solid var(--border)",
+              background: "var(--bg-surface)",
+            }}
+            className="md:hidden"
+          >
+            <nav
+              className="app-container"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                paddingTop: 8,
+                paddingBottom: 12,
+              }}
+              aria-label="Mobile navigation"
+            >
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "var(--radius-sm)",
+                    textDecoration: "none",
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                    transition: "color 0.15s",
+                  }}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
     </AuthProvider>
   );
 }
-
 
 export function TrustStrip({ inverted = false }: { inverted?: boolean }) {
   return (

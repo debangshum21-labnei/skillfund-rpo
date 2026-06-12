@@ -23,7 +23,7 @@ export function RewardCalculator() {
     const percent = clamp(((deposit - 100) / (5000 - 100)) * 100, 0, 100);
 
     return (
-        <section className="skillfund-section py-28" id="reward-calculator">
+        <section className="skillfund-section py-28" id="reward-calculator" aria-label="Reward calculator">
             <div className="app-container">
                 <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
                     <div>
