@@ -219,6 +219,7 @@ select option {
 @keyframes fade-in {
   from {
     opacity: 0;
+
   }
 
   to {
@@ -232,4 +233,765 @@ select option {
 
 .animate-fade-in {
   animation: fade-in 0.2s ease forwards;
+}
+
+/* ── SkillFund landing animations (premium) ── */
+@keyframes sf-aurora {
+  0% {
+    transform: translate3d(-10%, -10%, 0) scale(1.05);
+    filter: blur(28px) saturate(120%);
+  }
+
+  50% {
+    transform: translate3d(10%, 6%, 0) scale(1.1);
+    filter: blur(32px) saturate(130%);
+  }
+
+  100% {
+    transform: translate3d(-10%, -10%, 0) scale(1.05);
+    filter: blur(28px) saturate(120%);
+  }
+}
+
+@keyframes sf-particle {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: var(--o, 0.2);
+  }
+
+  70% {
+    opacity: calc(var(--o, 0.2) * 0.6);
+  }
+
+  100% {
+    transform: translate3d(0, -60px, 0) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes sf-lineDraw {
+  from {
+    transform: scaleY(0);
+    opacity: 0.3;
+  }
+
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sf-nodePop {
+  0% {
+    transform: translate3d(0, 10px, 0) scale(0.9);
+    opacity: 0;
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+.skillfund-hero {
+  --sf-blue: #3B82F6;
+  --sf-green: #10B981;
+  --sf-gold: #F59E0B;
+}
+
+.skillfund-hero__bg {
+  position: absolute;
+  inset: -20% -20% -20% -20%;
+  background:
+    radial-gradient(900px circle at 20% 25%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(900px circle at 80% 35%, rgba(16, 185, 129, 0.18), transparent 55%),
+    radial-gradient(900px circle at 55% 80%, rgba(245, 158, 11, 0.10), transparent 55%);
+  animation: sf-aurora 10s ease-in-out infinite;
+}
+
+.skillfund-hero__noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.skillfund-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(59, 130, 246, 0.2));
+  animation: sf-particle 3.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.glass-pill {
+  backdrop-filter: blur(10px);
+}
+
+.skillfund-hero__cardWrap {
+  width: 100%;
+}
+
+.skillfund-hero__glassCard {
+  width: min(720px, 100%);
+  transform-style: preserve-3d;
+  perspective: 1100px;
+  transform: translate3d(0, 0, 0);
+}
+
+.skillfund-hero__glassCard {
+  position: relative;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.skillfund-hero__glassInner {
+  position: relative;
+  padding: 18px;
+}
+
+.skillfund-hero__glassCard.is-ready {
+  animation: none;
+}
+
+.skillfund-hero__glassCard::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background:
+    radial-gradient(480px circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%), rgba(59, 130, 246, 0.35), transparent 60%),
+    radial-gradient(480px circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%), rgba(16, 185, 129, 0.22), transparent 55%);
+  opacity: 0.7;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.skillfund-hero__glassCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.10) 45%, transparent 60%);
+  transform: translateX(-30%);
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.skillfund-hero__glassCard:hover::after {
+  opacity: 0.6;
+}
+
+.skillfund-stepRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  transform: translateZ(30px);
+}
+
+.skillfund-step {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+}
+
+.accent {
+  color: #10B981;
+}
+
+.gold {
+  color: #F59E0B;
+}
+
+.skillfund-hero__chart {
+  margin-top: 14px;
+  height: 90px;
+  opacity: 0.22;
+}
+
+.skillfund-chartLine {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.7), rgba(16, 185, 129, 0.7), transparent);
+  width: 100%;
+  opacity: 0.7;
+}
+
+.skillfund-chartCandles {
+  height: 70px;
+  margin-top: 10px;
+  background:
+    linear-gradient(90deg,
+      rgba(59, 130, 246, 0.0) 0%,
+      rgba(59, 130, 246, 0.35) 15%,
+      rgba(16, 185, 129, 0.35) 55%,
+      rgba(245, 158, 11, 0.25) 85%,
+      rgba(16, 185, 129, 0.0) 100%);
+  clip-path: inset(0 0 0 0 round 16px);
+}
+
+.skillfund-section {
+  background: #050505;
+}
+
+.eyebrow {
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.skillfund-h2 {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.06;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.skillfund-lead {
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.glassCard {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 14px 14px;
+  backdrop-filter: blur(14px);
+}
+
+.glassLabel {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+}
+
+.glassValue {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.rewardWallet {
+  height: 320px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background:
+    radial-gradient(220px circle at 30% 20%, rgba(59, 130, 246, 0.25), transparent 60%),
+    radial-gradient(260px circle at 60% 60%, rgba(16, 185, 129, 0.22), transparent 65%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(18px);
+}
+
+.rewardTierRow {
+  margin-top: -32px;
+  display: flex;
+  justify-content: center;
+}
+
+.rewardTier {
+  min-width: min(360px, 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(16px);
+  padding: 14px;
+}
+
+.rewardTierLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+.rewardTierValue {
+  margin-top: 6px;
+  color: #F59E0B;
+  font-size: 22px;
+  font-weight: 750;
+}
+
+/* Timeline */
+.skillfund-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.skillfund-timelineLine {
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transform-origin: top;
+  transform: scaleY(0);
+  opacity: 0.3;
+}
+
+.skillfund-timelineLine.is-drawn {
+  animation: sf-lineDraw 1.1s ease forwards;
+}
+
+.skillfund-timelineItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  opacity: 0.65;
+  transform: translate3d(0, 10px, 0);
+}
+
+.skillfund-timelineItem.is-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  animation: sf-nodePop 0.9s ease both;
+}
+
+.skillfund-timelineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.06);
+}
+
+.skillfund-timelineItem.loss .skillfund-timelineDot {
+  background: rgba(244, 63, 94, 0.75);
+  box-shadow: 0 0 0 7px rgba(244, 63, 94, 0.12);
+}
+
+.skillfund-timelineCard {
+  margin-left: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  padding: 14px 16px;
+}
+
+.skillfund-timelineLabel {
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Cinematic */
+.skillfund-cinematic {
+  height: 420px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: radial-gradient(500px circle at 50% 40%, rgba(59, 130, 246, 0.12), transparent 60%), rgba(255, 255, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+  transform: perspective(900px) rotateX(8deg);
+}
+
+.skillfund-cinematic__bgGlow {
+  position: absolute;
+  inset: -20% -20% -20% -20%;
+  background:
+    radial-gradient(420px circle at 30% 35%, rgba(16, 185, 129, 0.22), transparent 60%),
+    radial-gradient(420px circle at 70% 45%, rgba(59, 130, 246, 0.22), transparent 60%);
+  filter: blur(20px);
+  opacity: 0.65;
+  transition: opacity 0.6s ease;
+}
+
+.skillfund-cinematic.is-active .skillfund-cinematic__bgGlow {
+  opacity: 1;
+}
+
+.skillfund-cinematic__chart {
+  position: absolute;
+  left: 18%;
+  bottom: 18%;
+  width: 48%;
+  height: 44%;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transform: translate3d(0, 30px, 0) scale(0.98);
+  transition: all 0.8s ease;
+}
+
+.skillfund-cinematic.is-active .skillfund-cinematic__chart {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.skillfund-cinematic__chart::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  background:
+    linear-gradient(90deg, rgba(59, 130, 246, 0.0) 0%, rgba(59, 130, 246, 0.35) 30%, rgba(16, 185, 129, 0.35) 70%, rgba(16, 185, 129, 0.0) 100%);
+  clip-path: polygon(0% 75%, 10% 60%, 20% 65%, 30% 40%, 40% 48%, 55% 28%, 70% 36%, 85% 16%, 100% 26%, 100% 100%, 0% 100%);
+  opacity: 0.45;
+}
+
+.skillfund-cinematic__wallet {
+  position: absolute;
+  right: 14%;
+  bottom: 26%;
+  width: 34%;
+  height: 48%;
+  border-radius: 22px;
+  background:
+    radial-gradient(220px circle at 30% 20%, rgba(245, 158, 11, 0.22), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  opacity: 0;
+  transform: translate3d(0, 40px, 0) scale(0.96);
+  transition: all 0.9s ease;
+}
+
+.skillfund-cinematic.is-active .skillfund-cinematic__wallet {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.skillfund-cinematic__connection {
+  position: absolute;
+  left: 40%;
+  top: 38%;
+  width: 20%;
+  height: 20%;
+  opacity: 0;
+}
+
+.skillfund-cinematic.is-active .skillfund-cinematic__connection {
+  opacity: 1;
+}
+
+.skillfund-cinematic__connection::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.55), transparent 60%),
+    radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.35), transparent 55%);
+  filter: blur(10px);
+}
+
+.skillfund-cinematic__connection::after {
+  content: "";
+  position: absolute;
+  left: -20%;
+  top: 40%;
+  width: 140%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0), rgba(16, 185, 129, 0.9), rgba(59, 130, 246, 0.9), rgba(59, 130, 246, 0));
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: none;
+}
+
+.skillfund-cinematic.is-active .skillfund-cinematic__connection::after {
+  animation: sf-lineDraw 0.9s ease forwards;
+}
+
+/* How it works pinned */
+.skillfund-pinnedContainer {
+  position: relative;
+}
+
+.skillfund-pinnedSticky {
+  position: sticky;
+  top: 80px;
+  height: calc(100vh - 100px);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 20px;
+  padding: 0 0;
+}
+
+.skillfund-pinnedSpacer {
+  height: 520px;
+}
+
+@media (max-width: 900px) {
+  .skillfund-pinnedSticky {
+    grid-template-columns: 1fr;
+    top: 70px;
+    height: auto;
+  }
+
+  .skillfund-pinnedSpacer {
+    height: 0;
+  }
+}
+
+.skillfund-pinnedLeft {
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+.skillfund-terminalMock {
+  position: absolute;
+  inset: 14px;
+  border-radius: 22px;
+  background:
+    radial-gradient(260px circle at 25% 18%, rgba(59, 130, 246, 0.25), transparent 60%),
+    radial-gradient(260px circle at 70% 65%, rgba(16, 185, 129, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.skillfund-terminalMock::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 18px;
+  height: 60px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.0), rgba(59, 130, 246, 0.35), rgba(16, 185, 129, 0.35), rgba(59, 130, 246, 0.0));
+  opacity: 0.35;
+}
+
+.skillfund-pinnedGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(420px circle at 50% 35%, rgba(16, 185, 129, 0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.skillfund-pinnedGlow.is-on {
+  opacity: 1;
+}
+
+.skillfund-pinnedRight {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.skillfund-stepCard {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  padding: 14px 14px;
+  transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.skillfund-stepCard.is-active {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+  transform: translate3d(0, -2px, 0) scale(1.01);
+}
+
+.skillfund-stepCard.is-past {
+  opacity: 0.8;
+}
+
+.skillfund-stepMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skillfund-stepIndex {
+  width: 34px;
+  height: 34px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.skillfund-stepTitle {
+  font-weight: 700;
+}
+
+.skillfund-stepSubtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.skillfund-stepBadge {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+/* Trust */
+.trustTiltGrid {
+  position: absolute;
+  inset: -40% -40% -40% -40%;
+  background:
+    radial-gradient(500px circle at 30% 20%, rgba(59, 130, 246, 0.18), transparent 60%),
+    radial-gradient(500px circle at 70% 60%, rgba(16, 185, 129, 0.14), transparent 60%),
+    repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.06) 0, rgba(255, 255, 255, 0.06) 1px, transparent 1px, transparent 12px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.trustCard {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  padding: 16px;
+  min-height: 120px;
+}
+
+.trustCardTitle {
+  font-weight: 750;
+}
+
+.trustCardValue {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+}
+
+/* Platform preview */
+.dashParallax {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+}
+
+.dashLayer {
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.dashLayer--bg {
+  background: radial-gradient(320px circle at 20% 20%, rgba(59, 130, 246, 0.20), transparent 55%), rgba(255, 255, 255, 0.02);
+}
+
+.dashLayer--mid {
+  background: radial-gradient(320px circle at 60% 60%, rgba(16, 185, 129, 0.18), transparent 55%), rgba(255, 255, 255, 0.02);
+  opacity: 0.9;
+}
+
+.dashLayer--fg {
+  background: radial-gradient(340px circle at 70% 20%, rgba(245, 158, 11, 0.14), transparent 55%), rgba(255, 255, 255, 0.03);
+  opacity: 0.8;
+}
+
+.terminalMockBig {
+  position: relative;
+  height: 420px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background:
+    radial-gradient(420px circle at 30% 20%, rgba(59, 130, 246, 0.16), transparent 60%),
+    radial-gradient(420px circle at 70% 70%, rgba(16, 185, 129, 0.12), transparent 60%),
+    rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.terminalTopBar {
+  height: 52px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.terminalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 14px;
+}
+
+.terminalCard {
+  height: 98px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.terminalCard--wide {
+  grid-column: 1 / -1;
+}
+
+.terminalMiniCandles {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  height: 90px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.0), rgba(59, 130, 246, 0.25), rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.0));
+  opacity: 0.35;
+  border-radius: 22px;
+}
+
+/* FAQ upgrade hook */
+.skillfund-faq [data-state="open"] {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+/* CTA */
+.skillfund-finalCta {
+  background: radial-gradient(800px circle at 50% 20%, rgba(59, 130, 246, 0.18), transparent 60%), #050505;
+}
+
+.skillfund-finalTitle {
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+/* Magnetic buttons */
+.magnetic {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition: transform 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .skillfund-hero__bg,
+  .skillfund-particle {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .magnetic {
+    transition: none;
+  }
 }
