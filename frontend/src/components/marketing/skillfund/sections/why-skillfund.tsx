@@ -2,26 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 
-function useInView(ref: React.RefObject<HTMLElement>, rootMargin = "-10% 0px -30% 0px") {
+function useInView<T extends HTMLElement>(ref: React.RefObject<T | null>, rootMargin = "-10% 0px -30% 0px") {
     const [inView, setInView] = useState(false);
+
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
+
         const io = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) setInView(true);
             },
             { rootMargin, threshold: 0.12 }
         );
+
         io.observe(el);
         return () => io.disconnect();
     }, [ref, rootMargin]);
+
     return inView;
 }
 
 export function WhySkillfund() {
-    const ref = useRef<HTMLElement | null>(null);
+    const ref = useRef<HTMLDivElement | null>(null);
     const inView = useInView(ref);
+
 
     return (
         <section id="why" className="skillfund-section relative py-28">

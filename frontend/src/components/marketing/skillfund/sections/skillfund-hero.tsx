@@ -135,9 +135,108 @@ export function SkillfundHero() {
                             </div>
 
                             <div className="skillfund-hero__chart" aria-hidden="true">
-                                <div className="skillfund-chartLine" />
-                                <div className="skillfund-chartCandles" />
+                                <svg viewBox="0 0 720 160" preserveAspectRatio="none" role="presentation" focusable="false">
+                                    <defs>
+                                        <linearGradient id="sf-line" x1="0" y1="0" x2="720" y2="0" gradientUnits="userSpaceOnUse">
+                                            <stop offset="0" stopColor="rgba(59,130,246,0)" />
+                                            <stop offset="0.2" stopColor="rgba(59,130,246,0.85)" />
+                                            <stop offset="0.55" stopColor="rgba(16,185,129,0.85)" />
+                                            <stop offset="1" stopColor="rgba(16,185,129,0)" />
+                                        </linearGradient>
+                                        <linearGradient id="sf-candle" x1="0" y1="0" x2="0" y2="160" gradientUnits="userSpaceOnUse">
+                                            <stop offset="0" stopColor="rgba(16,185,129,0.65)" />
+                                            <stop offset="1" stopColor="rgba(16,185,129,0)" />
+                                        </linearGradient>
+                                        <filter id="sf-glow" x="-30%" y="-50%" width="160%" height="200%">
+                                            <feGaussianBlur stdDeviation="3" result="blur" />
+                                            <feMerge>
+                                                <feMergeNode in="blur" />
+                                                <feMergeNode in="SourceGraphic" />
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+
+                                    {/* baseline grid */}
+                                    <g opacity="0.35">
+                                        {Array.from({ length: 6 }).map((_, i) => {
+                                            const y = 20 + i * 24;
+                                            return (
+                                                <path
+                                                    key={i}
+                                                    d={`M 0 ${y} L 720 ${y}`}
+                                                    stroke="rgba(255,255,255,0.06)"
+                                                    strokeWidth="1"
+                                                />
+                                            );
+                                        })}
+                                    </g>
+
+                                    {/* animated line */}
+                                    <path
+                                        className="sf-line"
+                                        d="M 18 108 C 86 80, 120 92, 162 78 S 240 58, 298 72 S 392 102, 446 84 S 538 48, 600 66 S 662 106, 702 86"
+                                        fill="none"
+                                        stroke="url(#sf-line)"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                        filter="url(#sf-glow)"
+                                    />
+
+                                    {/* soft glow pass */}
+                                    <path
+                                        className="sf-glow"
+                                        d="M 18 108 C 86 80, 120 92, 162 78 S 240 58, 298 72 S 392 102, 446 84 S 538 48, 600 66 S 662 106, 702 86"
+                                        fill="none"
+                                        stroke="rgba(16,185,129,0.35)"
+                                        strokeWidth="8"
+                                        strokeLinecap="round"
+                                        opacity="0.55"
+                                    />
+
+                                    {/* candles */}
+                                    <g>
+                                        {[
+                                            { x: 74, w: 16, y: 88, o: 0.8 },
+                                            { x: 110, w: 16, y: 70, o: 0.95 },
+                                            { x: 146, w: 16, y: 78, o: 0.85 },
+                                            { x: 182, w: 16, y: 54, o: 0.98 },
+                                            { x: 218, w: 16, y: 66, o: 0.9 },
+                                            { x: 254, w: 16, y: 60, o: 0.92 },
+                                            { x: 290, w: 16, y: 40, o: 1 },
+                                            { x: 326, w: 16, y: 58, o: 0.9 },
+                                            { x: 362, w: 16, y: 46, o: 0.96 },
+                                            { x: 398, w: 16, y: 62, o: 0.88 },
+                                            { x: 434, w: 16, y: 36, o: 1 },
+                                            { x: 470, w: 16, y: 52, o: 0.92 },
+                                            { x: 506, w: 16, y: 44, o: 0.95 },
+                                            { x: 542, w: 16, y: 66, o: 0.88 },
+                                            { x: 578, w: 16, y: 58, o: 0.9 },
+                                        ].map((c, i) => (
+                                            <g key={i} className="sf-candle" style={{ animationDelay: `${i * 80}ms`, transformOrigin: `${c.x + c.w / 2}px 80px` }}>
+                                                <path
+                                                    d={`M ${c.x + c.w / 2} 130 L ${c.x + c.w / 2} ${c.y}`}
+                                                    stroke="rgba(16,185,129,0.55)"
+                                                    strokeWidth="3"
+                                                    strokeLinecap="round"
+                                                    opacity={c.o}
+                                                />
+                                                <rect
+                                                    x={c.x}
+                                                    y={c.y}
+                                                    width={c.w}
+                                                    height={130 - c.y}
+                                                    rx="6"
+                                                    fill="url(#sf-candle)"
+                                                    stroke="rgba(16,185,129,0.55)"
+                                                    strokeWidth="1"
+                                                    opacity={c.o}
+                                                />
+                                            </g>
+                                        ))}
+                                    </g>
+                                </svg>
                             </div>
+
                         </div>
                     </div>
                 </div>
