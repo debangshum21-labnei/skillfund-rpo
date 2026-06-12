@@ -40,11 +40,11 @@ export function WhySkillfund() {
                             WE REWARD SKILL.
                         </h2>
 
-                        <p className="mt-6 text-lg leading-8 text-slate-300">
+                        <p className="mt-6 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
                             Thousands of traders spend months learning. Many develop real skills. Most never receive enough capital to
                             meaningfully apply them.
                         </p>
-                        <p className="mt-4 text-lg leading-8 text-slate-300">
+                        <p className="mt-4 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
                             SkillFund exists to bridge that gap. By connecting trading performance with predefined rewards, SkillFund
                             gives traders a way to demonstrate and monetize skill.
                         </p>

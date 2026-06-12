@@ -76,7 +76,8 @@ export function SkillfundHero() {
 
             <div className="skillfund-hero__container app-container relative mx-auto flex min-h-[100vh] flex-col justify-center py-28">
                 <div className="relative max-w-3xl">
-                    <div className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200">
+                    <div className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm" style={{ color: "rgba(255,255,255,0.88)" }}>
+
                         <span className="h-2 w-2 rounded-full bg-[#10B981]" />
                         Premium, rules-first demo trading → real rewards (mocked MVP)
                     </div>
@@ -85,7 +86,8 @@ export function SkillfundHero() {
                         TURN TRADING SKILL INTO REAL REWARDS.
                     </h1>
 
-                    <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+                    <p className="mt-6 max-w-2xl text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
+
                         SkillFund bridges the gap between trading skill and opportunity.
                         Start with a small deposit. Trade with demo capital. Earn rewards based on performance.
                     </p>

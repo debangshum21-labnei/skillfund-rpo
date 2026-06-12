@@ -10,7 +10,8 @@ export function FinalCta() {
             <div className="app-container">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="skillfund-finalTitle">READY TO PUT YOUR TRADING SKILL TO WORK?</h2>
-                    <p className="mt-4 text-lg leading-8 text-slate-300">
+                    <p className="mt-4 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
+
                         Join a new generation of performance-driven traders.
                     </p>
                     <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

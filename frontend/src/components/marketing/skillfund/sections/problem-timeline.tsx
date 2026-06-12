@@ -90,6 +90,7 @@ export function ProblemTimeline() {
                 </ol>
 
                 <div className="mt-14 text-center">
+
                     <div className="mx-auto max-w-3xl">
                         <h3 className="skillfund-lead">
                             Skill should create opportunity.

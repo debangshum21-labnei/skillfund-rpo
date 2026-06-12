@@ -46,7 +46,7 @@ export function RewardExample() {
                     <div>
                         <p className="eyebrow">Interactive reward example</p>
                         <h2 className="skillfund-h2">SEE HOW REWARDS WORK.</h2>
-                        <p className="mt-5 text-lg leading-8 text-slate-300">
+                        <p className="mt-5 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
                             A rules-based bridge: performance on demo → capped reward on your real wallet.
                         </p>
 
@@ -61,11 +61,11 @@ export function RewardExample() {
                             </div>
                             <div className="glassCard">
                                 <div className="glassLabel">Performance</div>
-                                <div className="glassValue text-emerald-300">+{perf.toFixed(0)}%</div>
+                                <div className="glassValue" style={{ color: "rgba(255,255,255,0.88)" }}>+{perf.toFixed(0)}%</div>
                             </div>
                             <div className="glassCard">
                                 <div className="glassLabel">Reward</div>
-                                <div className="glassValue text-amber-200">{formatINR(reward)}</div>
+                                <div className="glassValue" style={{ color: "rgba(255,255,255,0.88)" }}>{formatINR(reward)}</div>
                             </div>
                             <div className="glassCard sm:col-span-2">
                                 <div className="glassLabel">New Balance</div>

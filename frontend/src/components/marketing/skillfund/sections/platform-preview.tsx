@@ -39,7 +39,8 @@ export function PlatformPreview() {
                     <div>
                         <p className="eyebrow">Platform preview</p>
                         <h2 className="skillfund-h2">A premium terminal, built around outcomes.</h2>
-                        <p className="mt-5 text-lg leading-8 text-slate-300">
+                        <p className="mt-5 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
+
                             Wallet, session status, PnL, reward progress, and a realistic trading terminal—presented with depth and clarity.
                             (Visual mock only for the MVP.)
                         </p>

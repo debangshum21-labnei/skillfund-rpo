@@ -29,13 +29,14 @@ export function RewardCalculator() {
                     <div>
                         <p className="eyebrow">Reward calculator</p>
                         <h2 className="skillfund-h2">Project your potential reward.</h2>
-                        <p className="mt-5 text-lg leading-8 text-slate-300">
+                        <p className="mt-5 text-lg leading-8" style={{ color: "rgba(255,255,255,0.88)" }}>
                             Adjust your deposit and see demo capital + capped outcome preview.
                         </p>
 
                         <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-slate-300">Deposit</span>
+                                <span style={{ color: "rgba(255,255,255,0.88)" }}>Deposit</span>
+
                                 <span className="tabular tabular-nums font-mono text-white">₹{deposit.toLocaleString("en-IN")}</span>
                             </div>
 
@@ -61,7 +62,7 @@ export function RewardCalculator() {
                                 </div>
                                 <div className="glassCard">
                                     <div className="glassLabel">Potential Reward</div>
-                                    <div className="glassValue text-amber-200">₹{reward.toFixed(0)}</div>
+                                    <div className="glassValue" style={{ color: "rgba(255,255,255,0.88)" }}>₹{reward.toFixed(0)}</div>
                                 </div>
                                 <div className="glassCard">
                                     <div className="glassLabel">Reward Tier</div>
@@ -69,11 +70,14 @@ export function RewardCalculator() {
                                 </div>
                                 <div className="glassCard">
                                     <div className="glassLabel">Session Cap</div>
-                                    <div className="glassValue text-slate-200 text-sm leading-6">{sessionCap}</div>
+                                    <div className="glassValue" style={{ color: "rgba(255,255,255,0.88)" }}>
+                                        <span className="text-sm leading-6">{sessionCap}</span>
+                                    </div>
+
                                 </div>
                                 <div className="glassCard sm:col-span-2">
                                     <div className="glassLabel">Projected Growth</div>
-                                    <div className="glassValue text-emerald-300">+{projectedGrowth.toFixed(1)}%</div>
+                                    <div className="glassValue" style={{ color: "rgba(255,255,255,0.88)" }}>+{projectedGrowth.toFixed(1)}%</div>
                                 </div>
                             </div>
                         </div>
@@ -84,8 +88,9 @@ export function RewardCalculator() {
                         <div className="absolute inset-0 flex items-end p-6">
                             <div className="w-full">
                                 <div className="mb-2 flex items-center justify-between text-sm">
-                                    <span className="text-slate-300">Preview</span>
-                                    <span className="font-mono text-slate-200">₹{newBalance.toFixed(0)}</span>
+                                    <span style={{ color: "rgba(255,255,255,0.88)" }}>Preview</span>
+                                    <span className="font-mono" style={{ color: "rgba(255,255,255,0.88)" }}>₹{newBalance.toFixed(0)}</span>
+
                                 </div>
                                 <div className="sparkBar">
                                     <div className="sparkFill" style={{ height: `${clamp(projectedGrowth, 0, 20) * 5}%` }} />
