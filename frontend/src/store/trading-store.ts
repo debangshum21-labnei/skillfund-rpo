@@ -55,36 +55,10 @@ const simulatePrice = (symbol: string, currentPrice: number) => {
 };
 
 export const useTradingStore = create<TradingState>((set, get) => ({
-  demoBalance: 105.40,
+  demoBalance: 100.00,
   startingDemoBalance: 100.00,
-  positions: [
-    {
-      id: "POS-17",
-      market: "EUR/USD",
-      symbol: "FX:EURUSD",
-      side: "Long",
-      margin: 22,
-      leverage: "5x",
-      liquidationBuffer: "42%",
-      unrealizedPnl: 2.84,
-      entryPrice: 1.0832,
-    },
-  ],
+  positions: [],
   trades: [
-    {
-      id: "TRD-3098",
-      market: "EUR/USD",
-      symbol: "FX:EURUSD",
-      positionId: "POS-17",
-      side: "Buy",
-      leverage: "5x",
-      entry: 1.0832,
-      quantity: 2400,
-      pnl: 2.84,
-      pnlPercent: 2.7,
-      status: "Open",
-      openedAt: "09:41",
-    },
     {
       id: "TRD-3097",
       market: "GBP/USD",
