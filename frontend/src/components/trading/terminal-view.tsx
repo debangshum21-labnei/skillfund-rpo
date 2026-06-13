@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TradingViewChart } from "@/components/trading/tradingview-chart";
 import { OrderPanel } from "@/components/trading/order-panel";
 import { TerminalBottomPanel } from "@/components/trading/terminal-bottom";
 import { SYMBOLS } from "@/components/trading/symbols";
-import { positions, trades, wallets, activeSession } from "@/lib/mock-data";
+import { wallets, activeSession } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
+import { useTradingStore } from "@/store/trading-store";
 
 export function TerminalView() {
   const [activeSymbol, setActiveSymbol] = useState(SYMBOLS[1].value);
   const [panelOpen, setPanelOpen] = useState(true);
 
-  const profitColor = activeSession.profitPercent >= 0 ? "var(--green)" : "var(--red)";
+  const demoBalance = useTradingStore((state) => state.demoBalance);
+  const startingDemoBalance = useTradingStore((state) => state.startingDemoBalance);
+  const positions = useTradingStore((state) => state.positions);
+  const trades = useTradingStore((state) => state.trades);
+  const startPriceSimulation = useTradingStore((state) => state.startPriceSimulation);
+  const stopPriceSimulation = useTradingStore((state) => state.stopPriceSimulation);
+
+  useEffect(() => {
+    startPriceSimulation();
+    return () => stopPriceSimulation();
+  }, [startPriceSimulation, stopPriceSimulation]);
+
+  const totalUnrealizedPnl = positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
+  const currentEquity = demoBalance + totalUnrealizedPnl;
+  const profitPercent = ((currentEquity - startingDemoBalance) / startingDemoBalance) * 100;
+  const profitColor = profitPercent >= 0 ? "var(--green)" : "var(--red)";
+  const profitSign = profitPercent >= 0 ? "+" : "";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", margin: "-24px", height: "calc(100vh - 56px)" }}>
@@ -34,13 +51,13 @@ export function TerminalView() {
           },
           {
             label: "Demo balance",
-            value: formatCurrency(wallets.demoBalance.amount, "USD"),
+            value: formatCurrency(demoBalance, "USD"),
             pill: "Active", pillColor: "var(--green)", pillBg: "var(--green-dim)",
             color: "var(--green)",
           },
           {
             label: "Session P&L",
-            value: `+${activeSession.profitPercent.toFixed(2)}%`,
+            value: `${profitSign}${profitPercent.toFixed(2)}%`,
             pill: null, color: profitColor,
           },
           {

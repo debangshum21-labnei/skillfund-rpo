@@ -53,6 +53,8 @@ export type Trade = {
   pnlPercent: number;
   status: "Open" | "Closed";
   openedAt: string;
+  symbol?: string;
+  positionId?: string;
 };
 
 export type Deposit = {
@@ -74,9 +76,11 @@ export type Activity = {
 export type Position = {
   id: string;
   market: string;
+  symbol: string;
   side: "Long" | "Short";
   margin: number;
   leverage: string;
   liquidationBuffer: string;
   unrealizedPnl: number;
+  entryPrice: number;
 };

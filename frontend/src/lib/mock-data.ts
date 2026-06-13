@@ -142,10 +142,12 @@ export const positions: Position[] = [
   {
     id: "POS-17",
     market: "EUR/USD",
+    symbol: "FX:EURUSD",
     side: "Long",
     margin: 22,
     leverage: "5x",
     liquidationBuffer: "42%",
     unrealizedPnl: 2.84,
+    entryPrice: 1.0832,
   },
 ];

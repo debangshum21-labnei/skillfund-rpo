@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Position, Trade } from "@/types";
 import { cn, formatCurrency, formatPercent } from "@/lib/utils";
+import { useTradingStore } from "@/store/trading-store";
 
 const TABS = ["Positions", "Open Orders", "Order History"] as const;
 type Tab = typeof TABS[number];
@@ -11,6 +12,7 @@ interface Props { positions: Position[]; trades: Trade[]; }
 
 export function TerminalBottomPanel({ positions, trades }: Props) {
   const [tab, setTab] = useState<Tab>("Positions");
+  const closePosition = useTradingStore((state) => state.closePosition);
 
   const th: React.CSSProperties = {
     padding: "6px 12px", fontSize: 11, fontWeight: 500,
@@ -85,13 +87,18 @@ export function TerminalBottomPanel({ positions, trades }: Props) {
                     {formatCurrency(p.unrealizedPnl, "USD")}
                   </td>
                   <td style={td}>
-                    <button style={{
-                      padding: "3px 10px", fontSize: 11, cursor: "pointer",
-                      borderRadius: "var(--radius-sm)",
-                      border: "0.5px solid rgba(244,63,94,0.3)",
-                      background: "var(--red-dim)", color: "var(--red)",
-                      transition: "all 0.15s",
-                    }}>Close</button>
+                    <button
+                      onClick={() => closePosition(p.id)}
+                      style={{
+                        padding: "3px 10px", fontSize: 11, cursor: "pointer",
+                        borderRadius: "var(--radius-sm)",
+                        border: "0.5px solid rgba(244,63,94,0.3)",
+                        background: "var(--red-dim)", color: "var(--red)",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      Close
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Minus, Plus, TrendingUp, TrendingDown, Zap, Target } from "lucide-react";
 import { SYMBOLS } from "@/components/trading/symbols";
 import { activeSession } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useTradingStore } from "@/store/trading-store";
 
 const MOCK_PRICES: Record<string, number> = {
   "NASDAQ:AAPL": 189.5,
@@ -15,7 +16,6 @@ const MOCK_PRICES: Record<string, number> = {
 };
 
 const MARGIN_PRESETS = [10, 25, 50, 75, 100];
-const MAX_DEMO_BALANCE = 105.40;
 
 interface Order {
   id: number; symbol: string; side: "Buy" | "Sell";
@@ -29,61 +29,42 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   const [side, setSide] = useState<"Buy" | "Sell">("Buy");
   const [leverage, setLeverage] = useState(5);
   const [margin, setMargin] = useState(22);
-  const [livePrice, setLivePrice] = useState<number | null>(null);
-  const [isMock, setIsMock] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [flash, setFlash] = useState(false);
+
+  const demoBalance = useTradingStore((state) => state.demoBalance);
+  const startingDemoBalance = useTradingStore((state) => state.startingDemoBalance);
+  const positions = useTradingStore((state) => state.positions);
+  const prices = useTradingStore((state) => state.prices);
+  const isMockMap = useTradingStore((state) => state.isMock);
+  const openPosition = useTradingStore((state) => state.openPosition);
+
+  const livePrice = prices[symbol] ?? MOCK_PRICES[symbol] ?? null;
+  const isMock = isMockMap[symbol] ?? false;
 
   const positionSize = margin * leverage;
   const lossBuffer = ((1 / leverage) * 100).toFixed(1);
   const symLabel = SYMBOLS.find((s) => s.value === symbol)?.label ?? symbol;
-  const sessionPct = Math.min((activeSession.profitPercent / activeSession.targetProfitPercent) * 100, 100);
 
-  useEffect(() => {
-    setLivePrice(null); setIsMock(false);
-    const ticker = symbol.split(":")[1];
-    async function fetchPrice() {
-      try {
-        const res = await fetch(`/api/price?ticker=${ticker}&symbol=${encodeURIComponent(symbol)}`);
-        const data = await res.json();
-        if (data.price) { setLivePrice(data.price); setIsMock(data.mock ?? false); }
-        else { setLivePrice(MOCK_PRICES[symbol] ?? null); setIsMock(true); }
-      } catch {
-        setLivePrice(MOCK_PRICES[symbol] ?? null); setIsMock(true);
-      }
-    }
-    fetchPrice();
-    const id = setInterval(fetchPrice, 10000);
-    return () => clearInterval(id);
-  }, [symbol]);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setLivePrice((prevPrice) => {
-        if (!prevPrice) return prevPrice;
-        let volatility = 0.0001;
-        if (symbol.includes("BTC")) {
-          volatility = 0.0003;
-        } else if (symbol.includes("EURUSD")) {
-          volatility = 0.00005;
-        }
-        const changePercent = (Math.random() - 0.5) * 2 * volatility;
-        const nextPrice = prevPrice * (1 + changePercent);
-        if (symbol.includes("EURUSD")) {
-          return parseFloat(nextPrice.toFixed(5));
-        } else if (symbol.includes("AAPL") || symbol.includes("XAUUSD")) {
-          return parseFloat(nextPrice.toFixed(2));
-        } else if (symbol.includes("NIFTY50")) {
-          return parseFloat(nextPrice.toFixed(1));
-        }
-        return parseFloat(nextPrice.toFixed(2));
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [symbol]);
+  const totalUnrealizedPnl = positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
+  const currentEquity = demoBalance + totalUnrealizedPnl;
+  const profitPercent = ((currentEquity - startingDemoBalance) / startingDemoBalance) * 100;
+  const targetProfitPercent = activeSession.targetProfitPercent;
+  const sessionPct = Math.min(Math.max((profitPercent / targetProfitPercent) * 100, 0), 100);
 
   function placeOrder() {
     const entry = livePrice ?? MOCK_PRICES[symbol] ?? 0;
+    if (margin <= 0) {
+      alert("Please enter a valid margin amount.");
+      return;
+    }
+    const totalUsedMargin = positions.reduce((sum, p) => sum + p.margin, 0);
+    if (totalUsedMargin + margin > demoBalance) {
+      alert("Insufficient demo balance to open this position.");
+      return;
+    }
+    openPosition(symbol, side, margin, leverage, entry);
+
     setOrders((prev) => [
       { id: Date.now(), symbol, side, margin, leverage, entryPrice: entry, time: new Date().toLocaleTimeString() },
       ...prev.slice(0, 9),
@@ -93,7 +74,7 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   }
 
   function applyPreset(pct: number) {
-    setMargin(Math.floor((MAX_DEMO_BALANCE * pct) / 100));
+    setMargin(Math.floor((demoBalance * pct) / 100));
   }
 
   const buyPrice = livePrice ? livePrice * 1.0001 : null;
@@ -120,7 +101,7 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
             <Target size={11} /> Session goal
           </span>
           <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--green)" }}>
-            +{activeSession.profitPercent.toFixed(1)}% / +{activeSession.targetProfitPercent}%
+            {profitPercent >= 0 ? "+" : ""}{profitPercent.toFixed(1)}% / +{targetProfitPercent}%
           </span>
         </div>
         <div style={{ height: 3, borderRadius: 99, background: "var(--bg-overlay)", overflow: "hidden" }}>
@@ -211,7 +192,7 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
             <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Margin ($)</label>
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Max: ${MAX_DEMO_BALANCE}</span>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Max: ${demoBalance.toFixed(2)}</span>
           </div>
           <input
             type="number" value={margin}
