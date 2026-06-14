@@ -53,6 +53,7 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   const sessionPct = Math.min(Math.max((profitPercent / targetProfitPercent) * 100, 0), 100);
 
   function placeOrder() {
+    if (atMaxPositions) return;
     const entry = livePrice ?? MOCK_PRICES[symbol] ?? 0;
     if (margin <= 0) {
       alert("Please enter a valid margin amount.");
@@ -76,6 +77,8 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   function applyPreset(pct: number) {
     setMargin(Math.floor((demoBalance * pct) / 100));
   }
+
+  const atMaxPositions = positions.length >= 2;
 
   const buyPrice = livePrice ? livePrice * 1.0001 : null;
   const sellPrice = livePrice ? livePrice * 0.9999 : null;
@@ -123,12 +126,17 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
         ].map(({ label, price, isSide, color }) => (
           <button
             key={label}
-            onClick={() => setSide(isSide)}
+            disabled={atMaxPositions}
+            onClick={() => {
+              if (atMaxPositions) return;
+              setSide(isSide);
+            }}
             style={{
               display: "flex", flexDirection: "column", alignItems: "center",
-              padding: "10px 8px", cursor: "pointer", border: "none",
+              padding: "10px 8px", cursor: atMaxPositions ? "not-allowed" : "pointer", border: "none",
               background: side === isSide ? (isSide === "Buy" ? "var(--green-dim)" : "var(--red-dim)") : "transparent",
               borderBottom: side === isSide ? `2px solid ${color}` : "2px solid transparent",
+              opacity: atMaxPositions ? 0.45 : 1,
               transition: "all 0.15s",
             }}
           >
@@ -159,6 +167,17 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
 
       {/* Form body */}
       <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+
+        {/* Max positions warning */}
+        {atMaxPositions && (
+          <div style={{
+            padding: "8px 10px", borderRadius: "var(--radius-sm)",
+            background: "var(--amber-dim)", border: "0.5px solid var(--amber)",
+            fontSize: 11, color: "var(--amber)", textAlign: "center", fontWeight: 500,
+          }}>
+            Maximum 2 active positions allowed.
+          </div>
+        )}
 
         {/* Market */}
         <div>
@@ -281,16 +300,18 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
       {/* Place order CTA */}
       <div style={{ padding: "10px 12px", borderTop: "0.5px solid var(--border)", flexShrink: 0 }}>
         <button
+          disabled={atMaxPositions}
           onClick={placeOrder}
-          className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 hover:opacity-90"
+          className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 transition-all duration-150"
           style={{
             border: "none",
-            background: side === "Buy" ? "var(--green)" : "var(--red)",
-            color: "#FFFFFF",
+            cursor: atMaxPositions ? "not-allowed" : "pointer",
+            background: atMaxPositions ? "var(--bg-overlay)" : (side === "Buy" ? "var(--green)" : "var(--red)"),
+            color: atMaxPositions ? "var(--text-muted)" : "#FFFFFF",
             transform: flash ? "scale(0.97)" : "scale(1)",
-            boxShadow: side === "Buy"
-              ? "0 0 20px var(--green-glow)"
-              : "0 0 20px var(--red-dim)",
+            boxShadow: atMaxPositions
+              ? "none"
+              : (side === "Buy" ? "0 0 20px var(--green-glow)" : "0 0 20px var(--red-dim)"),
           }}
         >
           <Zap size={16} />

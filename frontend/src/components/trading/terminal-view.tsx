@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { TradingViewChart } from "@/components/trading/tradingview-chart";
 import { OrderPanel } from "@/components/trading/order-panel";
+import { OrderPanelMobile } from "@/components/trading/order-panel-mobile";
 import { TerminalBottomPanel } from "@/components/trading/terminal-bottom";
 import { SYMBOLS } from "@/components/trading/symbols";
 import { wallets, activeSession } from "@/lib/mock-data";
@@ -32,7 +33,7 @@ export function TerminalView() {
   const profitSign = profitPercent >= 0 ? "+" : "";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", margin: "-24px", height: "calc(100vh - 56px)" }}>
+    <div style={{ display: "flex", flexDirection: "column", margin: "-24px", height: "calc(100vh - 56px)" }} className="pb-[70px] lg:pb-0">
 
       {/* Account ribbon */}
       <div style={{
@@ -113,8 +114,10 @@ export function TerminalView() {
           </div>
         </div>
 
-        {/* Mobile order panel: full-width bottom sheet trigger handled separately */}
       </div>
+
+      {/* Mobile bottom sheet */}
+      <OrderPanelMobile symbol={activeSymbol} onSymbolChange={setActiveSymbol} />
 
       {/* Bottom panel */}
       <TerminalBottomPanel positions={positions} trades={trades} />

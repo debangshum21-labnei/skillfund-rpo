@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import type { Position } from "@/types";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export function PositionsTable({ positions }: { positions: Position[] }) {
   return (
@@ -29,7 +29,7 @@ export function PositionsTable({ positions }: { positions: Position[] }) {
                 <TD>{formatCurrency(position.margin, "USD")}</TD>
                 <TD>{position.leverage}</TD>
                 <TD>{position.liquidationBuffer}</TD>
-                <TD className="text-right font-semibold text-success">{formatCurrency(position.unrealizedPnl, "USD")}</TD>
+                <TD className={cn("text-right font-semibold", position.unrealizedPnl >= 0 ? "text-success" : "text-danger")}>{formatCurrency(position.unrealizedPnl, "USD")}</TD>
               </TR>
             ))}
           </TBody>

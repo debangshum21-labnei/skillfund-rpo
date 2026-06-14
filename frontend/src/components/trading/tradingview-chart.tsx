@@ -32,6 +32,7 @@ type TradingViewWidgetConfig = {
   allow_symbol_change: boolean;
   hide_side_toolbar: boolean;
   studies?: string[];
+  saved_data?: Record<string, unknown>;
   container_id: string;
 };
 
@@ -52,9 +53,10 @@ interface Props {
 
 export function TradingViewChart({ symbol, onSymbolChange }: Props) {
   const positions = useTradingStore((state) => state.positions);
-  const trades = useTradingStore((state) => state.trades);
   const prices = useTradingStore((state) => state.prices);
   const closePosition = useTradingStore((state) => state.closePosition);
+
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const generatedId = useId();
   const containerId = useMemo(
@@ -166,58 +168,60 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
           ))}
         </div>
 
-        <div className={cn(
-          "flex shrink-0 items-center gap-0.5 rounded-lg p-0.5 transition-colors",
-          "bg-[var(--bg-overlay)]/45"
-        )}>
-          {TIMEFRAMES.map((tf) => (
-            <button
-              key={tf.value}
-              type="button"
-              onClick={() => setInterval(tf.value)}
+        <div className="lg:contents flex flex-nowrap items-center gap-2">
+          <div className={cn(
+            "flex shrink-0 items-center gap-0.5 rounded-lg p-0.5 transition-colors",
+            "bg-[var(--bg-overlay)]/45"
+          )}>
+            {TIMEFRAMES.map((tf) => (
+              <button
+                key={tf.value}
+                type="button"
+                onClick={() => setInterval(tf.value)}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                  interval === tf.value
+                    ? "bg-[var(--bg-overlay)] text-[var(--text-primary)] shadow-sm"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-overlay)]/40",
+                )}
+              >
+                {tf.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            <Button
+              type="button" variant="secondary" size="icon"
+              onClick={() => setReloadKey((v) => v + 1)} aria-label="Reload chart"
               className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                interval === tf.value
-                  ? "bg-[var(--bg-overlay)] text-[var(--text-primary)] shadow-sm"
-                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-overlay)]/40",
+                "h-7 w-7 rounded-lg bg-transparent transition-colors",
+                "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
               )}
             >
-              {tf.label}
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+            <a
+              href={`https://www.tradingview.com/chart/?symbol=${symbol}`}
+              target="_blank" rel="noopener noreferrer"
+              className={cn(
+                "rounded-lg p-1.5 transition-colors",
+                "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
+              )}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <button
+              type="button" onClick={toggleFullscreen}
+              title={fullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors",
+                "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
+              )}
+            >
+              {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
             </button>
-          ))}
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1">
-          <Button
-            type="button" variant="secondary" size="icon"
-            onClick={() => setReloadKey((v) => v + 1)} aria-label="Reload chart"
-            className={cn(
-              "h-7 w-7 rounded-lg bg-transparent transition-colors",
-              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
-            )}
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-          </Button>
-          <a
-            href={`https://www.tradingview.com/chart/?symbol=${symbol}`}
-            target="_blank" rel="noopener noreferrer"
-            className={cn(
-              "rounded-lg p-1.5 transition-colors",
-              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
-            )}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-          <button
-            type="button" onClick={toggleFullscreen}
-            title={fullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
-            className={cn(
-              "rounded-lg p-1.5 transition-colors",
-              "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)]/40 hover:text-[var(--text-primary)]"
-            )}
-          >
-            {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
-          </button>
+          </div>
         </div>
       </div>
 
@@ -247,16 +251,13 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
               const pnlSign = pnlPositive ? "+" : "";
               const currentPrice = prices[pos.symbol] || pos.entryPrice;
               const leverageNum = parseFloat(pos.leverage);
-              const percentageChange = ((isLong
+              const pnlPercent = ((isLong
                 ? (currentPrice / pos.entryPrice - 1)
                 : (1 - currentPrice / pos.entryPrice)
               ) * leverageNum * 100);
-
-              const positionTrade = trades.find((t) => t.positionId === pos.id);
-              const quantity =
-                positionTrade?.quantity ??
-                parseFloat((pos.margin * leverageNum / pos.entryPrice).toFixed(4));
-
+              const quantity = parseFloat((pos.margin * leverageNum / pos.entryPrice).toFixed(6));
+              const symLabel = SYMBOLS.find((s) => s.value === pos.symbol)?.label || pos.market || pos.symbol;
+              const isExpanded = expandedId === pos.id;
               const glowColor = pnlPositive
                 ? "rgba(16, 185, 129, 0.12)"
                 : "rgba(244, 63, 94, 0.12)";
@@ -267,7 +268,8 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
               return (
                 <div
                   key={pos.id}
-                  className="pointer-events-auto backdrop-blur-xl rounded-lg shadow-2xl p-3 text-xs flex flex-col gap-1.5 min-w-[210px] transition-all duration-300 animate-slide-up"
+                  className="pointer-events-auto backdrop-blur-xl rounded-lg shadow-2xl animate-slide-up cursor-pointer"
+                  onClick={() => setExpandedId(isExpanded ? null : pos.id)}
                   style={{
                     background: "rgba(14, 20, 32, 0.88)",
                     border: `1px solid ${borderColor}`,
@@ -276,105 +278,71 @@ export function TradingViewChart({ symbol, onSymbolChange }: Props) {
                     WebkitBackdropFilter: "blur(16px)",
                   }}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 11,
-                        letterSpacing: "0.06em",
-                        color: isLong ? "var(--green)" : "var(--red)",
-                      }}
-                    >
-                      {pos.side} {pos.market || pos.symbol}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: "var(--text-muted)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {pos.leverage}
+                  {/* Compact header — always visible */}
+                  <div className="p-2 text-[11px] min-w-[200px] flex items-center justify-between select-none">
+                    <div className="flex items-center gap-1.5">
+                      <span style={{ fontWeight: 700, fontSize: 10, letterSpacing: "0.06em", color: isLong ? "var(--green)" : "var(--red)" }}>
+                        {pos.side}
+                      </span>
+                      <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                        {symLabel}
+                      </span>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 11, color: pnlColor }}>
+                      {pnlSign}{pos.unrealizedPnl.toFixed(2)}
                     </span>
                   </div>
 
-                  <div style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <div className="px-2 pb-2 pt-0 text-[11px] flex flex-col gap-1 animate-slide-up">
+                      <div style={{ height: 1, background: "var(--border)", marginBottom: 2 }} />
 
-                  <div className="flex justify-between items-center">
-                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Entry</span>
-                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
-                      {pos.entryPrice.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 5,
-                      })}
-                    </span>
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: "var(--text-muted)", fontSize: 10 }}>Entry</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
+                          {pos.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 })}
+                        </span>
+                      </div>
 
-                  <div className="flex justify-between items-center">
-                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Current</span>
-                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
-                      {currentPrice.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 5,
-                      })}
-                    </span>
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: "var(--text-muted)", fontSize: 10 }}>Current</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
+                          {currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 })}
+                        </span>
+                      </div>
 
-                  <div className="flex justify-between items-center">
-                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>PnL</span>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontWeight: 700,
-                        fontSize: 11,
-                        color: pnlColor,
-                      }}
-                    >
-                      {pnlSign}{pos.unrealizedPnl.toFixed(2)} ({pnlSign}{percentageChange.toFixed(2)}%)
-                    </span>
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: "var(--text-muted)", fontSize: 10 }}>Qty</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
+                          {quantity.toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                        </span>
+                      </div>
 
-                  <div className="flex justify-between items-center">
-                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Qty</span>
-                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>
-                      {quantity.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-                    </span>
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: "var(--text-muted)", fontSize: 10 }}>PnL</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 11, color: pnlColor }}>
+                          {pnlSign}{pnlPercent.toFixed(2)}%
+                        </span>
+                      </div>
 
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 5,
-                        height: 5,
-                        borderRadius: "50%",
-                        background: "var(--green)",
-                        boxShadow: "0 0 6px var(--green-glow)",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: "var(--green)",
-                        letterSpacing: "0.05em",
-                      }}
-                    >
-                      OPEN
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => closePosition(pos.id)}
-                    className="mt-1.5 w-full text-center py-1.5 rounded text-[11px] font-semibold cursor-pointer border-none transition-all hover:opacity-80 active:scale-[0.97]"
-                    style={{
-                      background: "rgba(244, 63, 94, 0.14)",
-                      color: "var(--red)",
-                      border: "0.5px solid rgba(244, 63, 94, 0.25)",
-                    }}
-                  >
-                    Close Position
-                  </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closePosition(pos.id);
+                          setExpandedId(null);
+                        }}
+                        className="mt-1 w-full text-center py-1.5 rounded text-[11px] font-semibold cursor-pointer border-none transition-all hover:opacity-80 active:scale-[0.97]"
+                        style={{
+                          background: "rgba(244, 63, 94, 0.14)",
+                          color: "var(--red)",
+                          border: "0.5px solid rgba(244, 63, 94, 0.25)",
+                        }}
+                      >
+                        Close Position
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}

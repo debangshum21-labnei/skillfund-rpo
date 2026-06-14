@@ -83,7 +83,7 @@ export function TerminalBottomPanel({ positions, trades }: Props) {
                   <td style={{ ...td, fontFamily: "var(--font-mono)" }}>{formatCurrency(p.margin, "USD")}</td>
                   <td style={{ ...td, fontFamily: "var(--font-mono)" }}>{p.leverage}</td>
                   <td style={td}>{p.liquidationBuffer}</td>
-                  <td style={{ ...td, fontFamily: "var(--font-mono)", color: "var(--green)", fontWeight: 600 }}>
+                  <td style={{ ...td, fontFamily: "var(--font-mono)", color: p.unrealizedPnl >= 0 ? "var(--green)" : "var(--red)", fontWeight: 600 }}>
                     {formatCurrency(p.unrealizedPnl, "USD")}
                   </td>
                   <td style={td}>
