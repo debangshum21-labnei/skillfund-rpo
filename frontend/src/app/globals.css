@@ -98,8 +98,8 @@
 @theme {
   --color-background: var(--bg-base);
   --color-foreground: var(--text-primary);
-  --color-primary: #0B1220;
-  --color-primary-foreground: #F0F4FF;
+  --color-primary: var(--text-primary);
+  --color-primary-foreground: var(--bg-base);
   --color-accent: var(--green);
   --color-secondary: var(--bg-overlay);
   --color-success: var(--green);

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Minus, Plus, TrendingUp, TrendingDown, Zap, Target } from "lucide-react";
 import { SYMBOLS } from "@/components/trading/symbols";
-import { activeSession } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/store/trading-store";
+import { useSessionStore } from "@/store/session-store";
+import { SessionConfirmModal } from "@/components/trading/session-confirm-modal";
 
 const MOCK_PRICES: Record<string, number> = {
   "NASDAQ:AAPL": 189.5,
@@ -31,6 +32,25 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   const [margin, setMargin] = useState(22);
   const [orders, setOrders] = useState<Order[]>([]);
   const [flash, setFlash] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState<{
+    symbol: string; side: "Buy" | "Sell"; margin: number; leverage: number; entry: number;
+  } | null>(null);
+
+  const session = useSessionStore((s) => s.session);
+  const startSession = useSessionStore((s) => s.startSession);
+
+  useEffect(() => {
+    if (!session.cooldownEndsAt || session.cooldownEndsAt <= Date.now()) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [session.cooldownEndsAt]);
+
+  const cooldownRemaining = session.cooldownEndsAt
+    ? Math.max(0, Math.floor((session.cooldownEndsAt - now) / 1000))
+    : 0;
+  const inCooldown = cooldownRemaining > 0;
 
   const demoBalance = useTradingStore((state) => state.demoBalance);
   const startingDemoBalance = useTradingStore((state) => state.startingDemoBalance);
@@ -49,11 +69,11 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
   const totalUnrealizedPnl = positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
   const currentEquity = demoBalance + totalUnrealizedPnl;
   const profitPercent = ((currentEquity - startingDemoBalance) / startingDemoBalance) * 100;
-  const targetProfitPercent = activeSession.targetProfitPercent;
+  const targetProfitPercent = 20;
   const sessionPct = Math.min(Math.max((profitPercent / targetProfitPercent) * 100, 0), 100);
 
   function placeOrder() {
-    if (atMaxPositions) return;
+    if (atMaxPositions || inCooldown) return;
     const entry = livePrice ?? MOCK_PRICES[symbol] ?? 0;
     if (margin <= 0) {
       alert("Please enter a valid margin amount.");
@@ -64,14 +84,33 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
       alert("Insufficient demo balance to open this position.");
       return;
     }
-    openPosition(symbol, side, margin, leverage, entry);
 
+    if (session.status !== "active") {
+      setPendingOrder({ symbol, side, margin, leverage, entry });
+      setShowSessionModal(true);
+      return;
+    }
+
+    executeTrade(symbol, side, margin, leverage, entry);
+  }
+
+  function executeTrade(sym: string, s: "Buy" | "Sell", mg: number, lv: number, entry: number) {
+    openPosition(sym, s, mg, lv, entry);
     setOrders((prev) => [
-      { id: Date.now(), symbol, side, margin, leverage, entryPrice: entry, time: new Date().toLocaleTimeString() },
+      { id: Date.now(), symbol: sym, side: s, margin: mg, leverage: lv, entryPrice: entry, time: new Date().toLocaleTimeString() },
       ...prev.slice(0, 9),
     ]);
     setFlash(true);
     setTimeout(() => setFlash(false), 500);
+  }
+
+  function handleStartSessionAndTrade() {
+    const order = pendingOrder;
+    setShowSessionModal(false);
+    setPendingOrder(null);
+    if (!order) return;
+    startSession();
+    executeTrade(order.symbol, order.side, order.margin, order.leverage, order.entry);
   }
 
   function applyPreset(pct: number) {
@@ -126,17 +165,17 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
         ].map(({ label, price, isSide, color }) => (
           <button
             key={label}
-            disabled={atMaxPositions}
+            disabled={atMaxPositions || inCooldown}
             onClick={() => {
-              if (atMaxPositions) return;
+              if (atMaxPositions || inCooldown) return;
               setSide(isSide);
             }}
             style={{
               display: "flex", flexDirection: "column", alignItems: "center",
-              padding: "10px 8px", cursor: atMaxPositions ? "not-allowed" : "pointer", border: "none",
+              padding: "10px 8px", cursor: (atMaxPositions || inCooldown) ? "not-allowed" : "pointer", border: "none",
               background: side === isSide ? (isSide === "Buy" ? "var(--green-dim)" : "var(--red-dim)") : "transparent",
               borderBottom: side === isSide ? `2px solid ${color}` : "2px solid transparent",
-              opacity: atMaxPositions ? 0.45 : 1,
+              opacity: (atMaxPositions || inCooldown) ? 0.45 : 1,
               transition: "all 0.15s",
             }}
           >
@@ -176,6 +215,17 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
             fontSize: 11, color: "var(--amber)", textAlign: "center", fontWeight: 500,
           }}>
             Maximum 2 active positions allowed.
+          </div>
+        )}
+
+        {/* Cooldown warning */}
+        {inCooldown && (
+          <div style={{
+            padding: "8px 10px", borderRadius: "var(--radius-sm)",
+            background: "var(--amber-dim)", border: "0.5px solid var(--amber)",
+            fontSize: 11, color: "var(--amber)", textAlign: "center", fontWeight: 500,
+          }}>
+            Please wait {cooldownRemaining}s before opening another position.
           </div>
         )}
 
@@ -300,16 +350,16 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
       {/* Place order CTA */}
       <div style={{ padding: "10px 12px", borderTop: "0.5px solid var(--border)", flexShrink: 0 }}>
         <button
-          disabled={atMaxPositions}
+          disabled={atMaxPositions || inCooldown}
           onClick={placeOrder}
           className="w-full h-11 rounded-md font-bold text-sm flex items-center justify-center gap-2 transition-all duration-150"
           style={{
             border: "none",
-            cursor: atMaxPositions ? "not-allowed" : "pointer",
-            background: atMaxPositions ? "var(--bg-overlay)" : (side === "Buy" ? "var(--green)" : "var(--red)"),
-            color: atMaxPositions ? "var(--text-muted)" : "#FFFFFF",
+            cursor: (atMaxPositions || inCooldown) ? "not-allowed" : "pointer",
+            background: (atMaxPositions || inCooldown) ? "var(--bg-overlay)" : (side === "Buy" ? "var(--green)" : "var(--red)"),
+            color: (atMaxPositions || inCooldown) ? "var(--text-muted)" : "#FFFFFF",
             transform: flash ? "scale(0.97)" : "scale(1)",
-            boxShadow: atMaxPositions
+            boxShadow: (atMaxPositions || inCooldown)
               ? "none"
               : (side === "Buy" ? "0 0 20px var(--green-glow)" : "0 0 20px var(--red-dim)"),
           }}
@@ -355,6 +405,12 @@ export function OrderPanel({ symbol, onSymbolChange }: Props) {
           </div>
         </div>
       )}
+
+      <SessionConfirmModal
+        isOpen={showSessionModal}
+        onConfirm={handleStartSessionAndTrade}
+        onCancel={() => { setShowSessionModal(false); setPendingOrder(null); }}
+      />
     </div>
   );
 }

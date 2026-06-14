@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { Position, Trade } from "@/types";
 import { SYMBOLS } from "@/components/trading/symbols";
 
@@ -54,42 +55,44 @@ const simulatePrice = (symbol: string, currentPrice: number) => {
   return parseFloat(nextPrice.toFixed(2));
 };
 
-export const useTradingStore = create<TradingState>((set, get) => ({
-  demoBalance: 100.00,
-  startingDemoBalance: 100.00,
-  positions: [],
-  trades: [
-    {
-      id: "TRD-3097",
-      market: "GBP/USD",
-      side: "Sell",
-      leverage: "3x",
-      entry: 1.2684,
-      exit: 1.2641,
-      quantity: 1800,
-      pnl: 4.12,
-      pnlPercent: 3.92,
-      status: "Closed",
-      openedAt: "09:12",
-    },
-    {
-      id: "TRD-3096",
-      market: "XAU/USD",
-      side: "Buy",
-      leverage: "2x",
-      entry: 2326.5,
-      exit: 2321.4,
-      quantity: 0.08,
-      pnl: -1.64,
-      pnlPercent: -1.56,
-      status: "Closed",
-      openedAt: "08:36",
-    },
-  ],
-  prices: initialPrices,
-  isMock: initialIsMock,
-  isSimulating: false,
-  simulationIntervalId: null,
+export const useTradingStore = create<TradingState>()(
+  persist(
+    (set, get) => ({
+      demoBalance: 100.00,
+      startingDemoBalance: 100.00,
+      positions: [],
+      trades: [
+        {
+          id: "TRD-3097",
+          market: "GBP/USD",
+          side: "Sell",
+          leverage: "3x",
+          entry: 1.2684,
+          exit: 1.2641,
+          quantity: 1800,
+          pnl: 4.12,
+          pnlPercent: 3.92,
+          status: "Closed",
+          openedAt: "09:12",
+        },
+        {
+          id: "TRD-3096",
+          market: "XAU/USD",
+          side: "Buy",
+          leverage: "2x",
+          entry: 2326.5,
+          exit: 2321.4,
+          quantity: 0.08,
+          pnl: -1.64,
+          pnlPercent: -1.56,
+          status: "Closed",
+          openedAt: "08:36",
+        },
+      ],
+      prices: initialPrices,
+      isMock: initialIsMock,
+      isSimulating: false,
+      simulationIntervalId: null,
 
   startPriceSimulation: () => {
     if (get().isSimulating) return;
@@ -259,4 +262,16 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       };
     });
   },
-}));
+}),
+{
+  name: "skillfund-trading",
+  partialize: (state) => ({
+    demoBalance: state.demoBalance,
+    startingDemoBalance: state.startingDemoBalance,
+    positions: state.positions,
+    trades: state.trades,
+    isMock: state.isMock,
+  }),
+},
+),
+);

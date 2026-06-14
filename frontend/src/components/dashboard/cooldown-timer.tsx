@@ -18,8 +18,8 @@ export function CooldownTimer({ minutes = 15 }: { minutes?: number }) {
   const secs = seconds % 60;
 
   return (
-    <div className="flex items-center gap-3 rounded-card border border-border bg-white p-4 shadow-soft">
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-primary">
+    <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4 shadow-soft">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--bg-elevated)] text-primary">
         <Clock className="h-5 w-5" />
       </span>
       <div>

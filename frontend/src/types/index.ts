@@ -73,6 +73,23 @@ export type Activity = {
   tone: "success" | "danger" | "neutral";
 };
 
+export type Session = {
+  id: string;
+  status: "not_started" | "active" | "completed";
+  startedAt?: number;
+  endedAt?: number;
+  startingBalance: number;
+  endingBalance?: number;
+  sessionPnL: number;
+  sessionReturnPercent: number;
+  tradesTaken: number;
+  winningTrades: number;
+  losingTrades: number;
+  totalHoldTimeSeconds: number;
+  averageHoldTimeSeconds: number;
+  cooldownEndsAt?: number;
+};
+
 export type Position = {
   id: string;
   market: string;

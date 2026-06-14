@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { activeSession, wallets } from "@/lib/mock-data";
+import { useSessionStore } from "@/store/session-store";
+import { useTradingStore } from "@/store/trading-store";
 import { formatCurrency } from "@/lib/utils";
 
 const items = [
@@ -26,14 +27,16 @@ const items = [
   { href: "/session-results", label: "Results", icon: Trophy },
 ];
 
-const progressPct = Math.min(
-  (activeSession.profitPercent / activeSession.targetProfitPercent) * 100,
-  100,
-);
-const circumference = 2 * Math.PI * 18;
-const dashOffset = circumference - (progressPct / 100) * circumference;
-
 function SessionRing() {
+  const session = useSessionStore((s) => s.session);
+  const returnPct = session.sessionReturnPercent;
+  const targetPct = 20;
+  const progressPct = Math.min((returnPct / targetPct) * 100, 100);
+  const circumference = 2 * Math.PI * 18;
+  const dashOffset = circumference - (progressPct / 100) * circumference;
+
+  if (session.status === "not_started") return null;
+
   return (
     <div
       style={{
@@ -94,10 +97,10 @@ function SessionRing() {
             fontWeight: 500,
           }}
         >
-          +{activeSession.profitPercent.toFixed(2)}%
+          {returnPct >= 0 ? "+" : ""}{returnPct.toFixed(2)}%
         </p>
         <p style={{ fontSize: 10, color: "var(--text-muted)", margin: 0 }}>
-          Target: +{activeSession.targetProfitPercent}%
+          Target: +{targetPct}%
         </p>
       </div>
     </div>
@@ -105,6 +108,8 @@ function SessionRing() {
 }
 
 function SidebarContent({ active, onClose }: { active: string; onClose?: () => void }) {
+  const demoBalance = useTradingStore((s) => s.demoBalance);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", padding: "0 12px 16px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 4px 16px" }}>
@@ -187,7 +192,7 @@ function SidebarContent({ active, onClose }: { active: string; onClose?: () => v
             margin: "2px 0 0",
           }}
         >
-          {formatCurrency(wallets.realBalance.amount, "INR")}
+          —
         </p>
       </div>
 
@@ -234,7 +239,7 @@ function SidebarContent({ active, onClose }: { active: string; onClose?: () => v
       >
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <History size={12} color="var(--text-muted)" />
-          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>MVP · Mock data only</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>MVP · Session data live</span>
         </div>
       </div>
     </div>
@@ -272,6 +277,7 @@ export function AppShell({
   children: ReactNode;
   fullWidth?: boolean;
 }) {
+  const demoBalance = useTradingStore((s) => s.demoBalance);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -415,7 +421,7 @@ export function AppShell({
                   fontWeight: 500,
                 }}
               >
-                {formatCurrency(wallets.demoBalance.amount, "USD")} demo
+                {formatCurrency(demoBalance, "USD")} demo
               </span>
             </div>
 

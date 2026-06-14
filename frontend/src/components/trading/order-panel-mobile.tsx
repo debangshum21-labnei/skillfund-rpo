@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Zap } from "lucide-react";
 import { SYMBOLS } from "@/components/trading/symbols";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/store/trading-store";
+import { useSessionStore } from "@/store/session-store";
+import { SessionConfirmModal } from "@/components/trading/session-confirm-modal";
 
 const MOCK_PRICES: Record<string, number> = {
   "NASDAQ:AAPL": 189.5,
@@ -27,6 +29,25 @@ export function OrderPanelMobile({ symbol }: Props) {
   const [leverage, setLeverage] = useState(5);
   const [margin, setMargin] = useState(22);
   const [flash, setFlash] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState<{
+    symbol: string; side: "Buy" | "Sell"; margin: number; leverage: number; entry: number;
+  } | null>(null);
+
+  const session = useSessionStore((s) => s.session);
+  const startSession = useSessionStore((s) => s.startSession);
+
+  useEffect(() => {
+    if (!session.cooldownEndsAt || session.cooldownEndsAt <= Date.now()) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [session.cooldownEndsAt]);
+
+  const cooldownRemaining = session.cooldownEndsAt
+    ? Math.max(0, Math.floor((session.cooldownEndsAt - now) / 1000))
+    : 0;
+  const inCooldown = cooldownRemaining > 0;
 
   const demoBalance = useTradingStore((state) => state.demoBalance);
   const positions = useTradingStore((state) => state.positions);
@@ -50,7 +71,7 @@ export function OrderPanelMobile({ symbol }: Props) {
     p ? p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "—";
 
   function handleSideSelect(s: "Buy" | "Sell") {
-    if (atMaxPositions) return;
+    if (atMaxPositions || inCooldown) return;
     if (side === s && showForm) {
       setShowForm(false);
       return;
@@ -60,16 +81,36 @@ export function OrderPanelMobile({ symbol }: Props) {
   }
 
   function placeOrder() {
-    if (atMaxPositions) return;
+    if (atMaxPositions || inCooldown) return;
     if (margin <= 0) return;
     const totalUsedMargin = positions.reduce((sum, p) => sum + p.margin, 0);
     if (totalUsedMargin + margin > demoBalance) return;
-    openPosition(symbol, side, margin, leverage, entryPrice);
+
+    if (session.status !== "active") {
+      setPendingOrder({ symbol, side, margin, leverage, entry: entryPrice });
+      setShowSessionModal(true);
+      return;
+    }
+
+    executeTrade(symbol, side, margin, leverage, entryPrice);
+  }
+
+  function executeTrade(sym: string, s: "Buy" | "Sell", mg: number, lv: number, entry: number) {
+    openPosition(sym, s, mg, lv, entry);
     setFlash(true);
     setTimeout(() => {
       setFlash(false);
       setShowForm(false);
     }, 500);
+  }
+
+  function handleStartSessionAndTrade() {
+    const order = pendingOrder;
+    setShowSessionModal(false);
+    setPendingOrder(null);
+    if (!order) return;
+    startSession();
+    executeTrade(order.symbol, order.side, order.margin, order.leverage, order.entry);
   }
 
   function applyPreset(pct: number) {
@@ -97,14 +138,14 @@ export function OrderPanelMobile({ symbol }: Props) {
           return (
             <button
               key={label}
-              disabled={atMaxPositions}
+              disabled={atMaxPositions || inCooldown}
               onClick={() => handleSideSelect(val)}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
-                padding: "10px 8px", border: "none", cursor: atMaxPositions ? "not-allowed" : "pointer",
+                padding: "10px 8px", border: "none", cursor: (atMaxPositions || inCooldown) ? "not-allowed" : "pointer",
                 background: isActive ? activeBg : "transparent",
                 borderBottom: isActive ? `2px solid ${color}` : "2px solid transparent",
-                opacity: atMaxPositions ? 0.45 : 1,
+                opacity: (atMaxPositions || inCooldown) ? 0.45 : 1,
                 transition: "all 0.15s",
               }}
             >
@@ -140,6 +181,17 @@ export function OrderPanelMobile({ symbol }: Props) {
               fontSize: 12, color: "var(--amber)", textAlign: "center", fontWeight: 500,
             }}>
               Maximum 2 active positions allowed.
+            </div>
+          )}
+
+          {/* Cooldown warning */}
+          {inCooldown && (
+            <div style={{
+              padding: "8px 10px", borderRadius: "var(--radius-sm)",
+              background: "var(--amber-dim)", border: "0.5px solid var(--amber)",
+              fontSize: 12, color: "var(--amber)", textAlign: "center", fontWeight: 500,
+            }}>
+              Please wait {cooldownRemaining}s before opening another position.
             </div>
           )}
 
@@ -234,14 +286,14 @@ export function OrderPanelMobile({ symbol }: Props) {
 
           {/* Confirm button */}
           <button
-            disabled={atMaxPositions}
+            disabled={atMaxPositions || inCooldown}
             onClick={placeOrder}
             style={{
-              width: "100%", height: 48, border: "none", cursor: atMaxPositions ? "not-allowed" : "pointer",
+              width: "100%", height: 48, border: "none", cursor: (atMaxPositions || inCooldown) ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               fontSize: 15, fontWeight: 700, borderRadius: "var(--radius-sm)",
-              background: atMaxPositions ? "var(--bg-overlay)" : (isBuy ? "var(--green)" : "var(--red)"),
-              color: atMaxPositions ? "var(--text-muted)" : "#FFFFFF",
+              background: (atMaxPositions || inCooldown) ? "var(--bg-overlay)" : (isBuy ? "var(--green)" : "var(--red)"),
+              color: (atMaxPositions || inCooldown) ? "var(--text-muted)" : "#FFFFFF",
               transform: flash ? "scale(0.97)" : "scale(1)",
               transition: "transform 0.15s",
             }}
@@ -264,6 +316,12 @@ export function OrderPanelMobile({ symbol }: Props) {
           )}
         </div>
       </div>
+
+      <SessionConfirmModal
+        isOpen={showSessionModal}
+        onConfirm={handleStartSessionAndTrade}
+        onCancel={() => { setShowSessionModal(false); setPendingOrder(null); }}
+      />
     </div>
   );
 }

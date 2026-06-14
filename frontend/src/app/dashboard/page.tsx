@@ -1,17 +1,18 @@
-import { Activity, CreditCard } from "lucide-react";
+import { ChartNoAxesCombined, TrendingUp, Zap } from "lucide-react";
 import { AppShell } from "@/components/layout/sidebar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { RewardProgress } from "@/components/dashboard/reward-progress";
-import { SessionCard } from "@/components/dashboard/session-card";
+import { DashboardSessionWidget } from "@/components/dashboard/session-widget";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { TradeTable } from "@/components/dashboard/trade-table";
-import { activities, activeSession, deposits, trades } from "@/lib/mock-data";
-import { formatINR, formatUSD } from "@/lib/balanceFormat";
+import { SessionHistory } from "@/components/dashboard/session-history";
+import { EquityCurveChart } from "@/components/dashboard/charts/equity-curve-chart";
+import { SessionBarChart } from "@/components/dashboard/charts/session-bar-chart";
+import { WinLossChart } from "@/components/dashboard/charts/win-loss-chart";
+import { LongShortChart } from "@/components/dashboard/charts/long-short-chart";
+import { LiveDemoBalance } from "@/components/dashboard/live-demo-balance";
 import { getAuthedAccountPageData } from "@/lib/accountData";
-
-
 
 export default async function DashboardPage() {
   const account = await getAuthedAccountPageData();
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
     <AppShell
       active="/dashboard"
       title={`Dashboard, ${account.name}`}
-      subtitle="Monitor live balance plus mock trading widgets (MVP)."
+      subtitle="Live analytics from actual trade and session data."
     >
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <BalanceCard
@@ -37,123 +38,89 @@ export default async function DashboardPage() {
           detail="Live deposit balance"
         />
 
-        <BalanceCard
-          label="Demo balance"
-          amount={account.demoBalance}
-          currency="USD"
-          detail="Demo wallet (MVP mapping)"
-        />
-
-        <Card className="relative overflow-hidden">
-          <CardContent style={{ padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-              <div style={{ minWidth: 0 }}>
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: "var(--text-muted)",
-                    margin: "0 0 4px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  Projected reward
-                </p>
-                <p
-                  style={{
-                    fontSize: 22,
-                    fontFamily: "var(--font-mono)",
-                    fontWeight: 600,
-                    color: "var(--text-primary)",
-                    margin: "0 0 4px",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  Mock only
-                </p>
-                <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0 }}>
-                  Kept as mock until trading tables exist.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-2">
+          <LiveDemoBalance />
+        </div>
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <SessionCard />
+        <DashboardSessionWidget />
         <Card>
           <CardHeader>
             <CardTitle>Reward progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <RewardProgress progressPercent={activeSession.profitPercent} />
+            <RewardProgress />
           </CardContent>
         </Card>
       </div>
 
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <CardTitle>Equity curve</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <EquityCurveChart width={480} height={140} />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ChartNoAxesCombined className="h-4 w-4 text-primary" />
+              <CardTitle>Session performance</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <SessionBarChart width={480} height={140} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_0.8fr_1.4fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Win / Loss</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <WinLossChart />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Long vs Short</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LongShortChart />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
               <CardTitle>Recent activity</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {activities.map((item) => (
-              <div key={item.id} className="rounded-xl border border-border bg-slate-50 p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-primary">{item.title}</p>
-                  <Badge tone={item.tone}>{item.time}</Badge>
-                </div>
-                <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-primary" />
-              <CardTitle>Deposit history</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <Table>
-              <THead>
-                <TR>
-                  <TH>ID</TH>
-                  <TH>Real amount</TH>
-                  <TH>Demo credit</TH>
-                  <TH>Status</TH>
-                  <TH>Date</TH>
-                </TR>
-              </THead>
-              <TBody>
-                {deposits.map((deposit) => (
-                  <TR key={deposit.id}>
-                    <TD className="font-medium text-primary">{deposit.id}</TD>
-                    <TD>{deposit.amount.currency === "INR" ? formatINR(deposit.amount.amount) : formatUSD(deposit.amount.amount)}</TD>
-                    <TD>{deposit.demoCredit.currency === "INR" ? formatINR(deposit.demoCredit.amount) : formatUSD(deposit.demoCredit.amount)}</TD>
-
-                    <TD>
-                      <Badge tone="success">{deposit.status}</Badge>
-                    </TD>
-                    <TD>{deposit.createdAt}</TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
+          <CardContent>
+            <ActivityFeed />
           </CardContent>
         </Card>
       </div>
 
       <div className="mt-6">
-        <TradeTable trades={trades} />
+        <TradeTable />
       </div>
-    </AppShell >
+
+      <div className="mt-6">
+        <SessionHistory />
+      </div>
+    </AppShell>
   );
 }

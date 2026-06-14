@@ -6,9 +6,9 @@ import { OrderPanel } from "@/components/trading/order-panel";
 import { OrderPanelMobile } from "@/components/trading/order-panel-mobile";
 import { TerminalBottomPanel } from "@/components/trading/terminal-bottom";
 import { SYMBOLS } from "@/components/trading/symbols";
-import { wallets, activeSession } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import { useTradingStore } from "@/store/trading-store";
+import { useSessionStore } from "@/store/session-store";
 
 export function TerminalView() {
   const [activeSymbol, setActiveSymbol] = useState(SYMBOLS[1].value);
@@ -20,6 +20,7 @@ export function TerminalView() {
   const trades = useTradingStore((state) => state.trades);
   const startPriceSimulation = useTradingStore((state) => state.startPriceSimulation);
   const stopPriceSimulation = useTradingStore((state) => state.stopPriceSimulation);
+  const sessionStatus = useSessionStore((s) => s.session.status);
 
   useEffect(() => {
     startPriceSimulation();
@@ -45,12 +46,6 @@ export function TerminalView() {
       }}>
         {[
           {
-            label: "Real balance",
-            value: formatCurrency(wallets.realBalance.amount, "INR"),
-            pill: "Protected", pillColor: "var(--text-muted)", pillBg: "var(--bg-overlay)",
-            color: "var(--text-primary)",
-          },
-          {
             label: "Demo balance",
             value: formatCurrency(demoBalance, "USD"),
             pill: "Active", pillColor: "var(--green)", pillBg: "var(--green-dim)",
@@ -66,6 +61,14 @@ export function TerminalView() {
             value: "10% profit",
             pill: "🎯", pillColor: "var(--amber)", pillBg: "var(--amber-dim)",
             color: "var(--amber)",
+          },
+          {
+            label: "Session",
+            value: "",
+            pill: sessionStatus === "active" ? "Active" : "No Session",
+            pillColor: sessionStatus === "active" ? "var(--green)" : "var(--red)",
+            pillBg: sessionStatus === "active" ? "var(--green-dim)" : "var(--red-dim)",
+            color: "var(--text-primary)",
           },
         ].map((item, i) => (
           <div key={i} style={{

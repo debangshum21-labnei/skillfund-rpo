@@ -30,7 +30,7 @@ export function DepositForm() {
               onChange={(event) => setAmount(Number(event.target.value))}
             />
           </div>
-          <div className="rounded-card border border-border bg-slate-50 p-4">
+          <div className="rounded-card border border-border bg-[var(--bg-elevated)] p-4">
             <p className="text-sm text-muted">Demo balance preview</p>
             <p className="mt-1 text-3xl font-semibold text-primary">{formatCurrency(demoPreview, "USD")}</p>
             <p className="mt-2 text-sm text-muted">MVP conversion: ₹50 maps to $1 demo credit.</p>
@@ -54,7 +54,7 @@ export function DepositForm() {
               </div>
             ))}
           </div>
-          <div className="rounded-xl bg-slate-50 p-3 text-sm text-muted">
+          <div className="rounded-xl bg-[var(--bg-elevated)] p-3 text-sm text-muted">
             <Info className="mb-2 h-4 w-4 text-primary" />
             Session ends automatically at +20% profit or -10% loss, then enters a 15-minute cooldown.
           </div>
