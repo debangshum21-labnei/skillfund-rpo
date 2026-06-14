@@ -18,20 +18,22 @@ export function ActivityFeed() {
   const activities = useSessionStore((s) => s.sessionActivities);
 
   return (
-    <div className="space-y-4">
-      {activities.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted">No activity yet</p>
-      ) : (
-        activities.map((item) => (
-          <div key={item.id} className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-medium text-primary">{item.title}</p>
-              <Badge tone={item.tone}>{relativeTime(item.createdAt)}</Badge>
+    <div className="activity-scroll" style={{ maxHeight: 260, overflowY: "auto", paddingRight: 4 }}>
+      <div className="space-y-3">
+        {activities.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted">No activity yet</p>
+        ) : (
+          activities.map((item) => (
+            <div key={item.id} className="metric-glass animate-fade-in">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-medium text-primary">{item.title}</p>
+                <Badge tone={item.tone}>{relativeTime(item.createdAt)}</Badge>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
             </div>
-            <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }

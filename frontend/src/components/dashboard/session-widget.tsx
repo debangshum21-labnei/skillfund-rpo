@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSessionStore } from "@/store/session-store";
 import { formatPercent } from "@/lib/utils";
+import { AnimatedNumber } from "@/components/dashboard/animated-number";
 
 function formatDuration(totalSeconds: number): string {
   if (totalSeconds < 60) return `${totalSeconds}s`;
@@ -19,10 +20,27 @@ function Metric({ icon: Icon, label, value, tone }: {
   tone: "success" | "danger" | "neutral";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+    <div className="metric-glass">
       <Icon className={tone === "success" ? "h-4 w-4 text-success" : tone === "danger" ? "h-4 w-4 text-danger" : "h-4 w-4 text-muted"} />
       <p className="mt-2 text-xs text-muted">{label}</p>
       <p className="font-semibold text-primary">{value}</p>
+    </div>
+  );
+}
+
+function AnimatedMetric({ icon: Icon, label, value, decimals = 0, suffix = "" }: {
+  icon: ElementType; label: string; value: number;
+  decimals?: number; suffix?: string;
+  tone?: "success" | "danger" | "neutral";
+}) {
+  return (
+    <div className="metric-glass">
+      <Icon className="h-4 w-4 text-muted" />
+      <p className="mt-2 text-xs text-muted">{label}</p>
+      <p className="font-semibold text-primary">
+        <AnimatedNumber value={value} decimals={decimals} />
+        {suffix}
+      </p>
     </div>
   );
 }
@@ -47,7 +65,7 @@ export function DashboardSessionWidget() {
 
   if (session.status === "not_started") {
     return (
-      <Card>
+      <Card className="glass-card">
         <CardContent>
           <div className="flex flex-col items-center gap-4 py-8 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--bg-elevated)] text-muted">
@@ -77,7 +95,7 @@ export function DashboardSessionWidget() {
       ? ((session.winningTrades / session.tradesTaken) * 100).toFixed(1)
       : "0.0";
     return (
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <div className="flex items-center justify-between gap-3">
             <CardTitle>Session</CardTitle>
@@ -86,30 +104,31 @@ export function DashboardSessionWidget() {
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-3">
-            <Metric icon={BarChart3} label="Trades" value={String(session.tradesTaken)} tone="neutral" />
-            <Metric
+            <AnimatedMetric icon={BarChart3} label="Trades" value={session.tradesTaken} />
+            <AnimatedMetric
               icon={returnPositive ? TrendingUp : TrendingDown}
               label="Return"
-              value={formatPercent(session.sessionReturnPercent)}
-              tone={returnPositive ? "success" : "danger"}
+              value={session.sessionReturnPercent}
+              decimals={2}
+              suffix="%"
             />
             <Metric icon={Clock} label="Avg hold" value={formatDuration(session.averageHoldTimeSeconds)} tone="neutral" />
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+            <div className="metric-glass">
               <p className="text-xs text-muted">Wins</p>
-              <p className="font-semibold text-success">{session.winningTrades}</p>
+              <p className="font-semibold text-success"><AnimatedNumber value={session.winningTrades} /></p>
             </div>
-            <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+            <div className="metric-glass">
               <p className="text-xs text-muted">Losses</p>
-              <p className="font-semibold text-danger">{session.losingTrades}</p>
+              <p className="font-semibold text-danger"><AnimatedNumber value={session.losingTrades} /></p>
             </div>
-            <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+            <div className="metric-glass">
               <p className="text-xs text-muted">Win rate</p>
-              <p className="font-semibold text-primary">{winRate}%</p>
+              <p className="font-semibold text-primary"><AnimatedNumber value={parseFloat(winRate)} decimals={1} />%</p>
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+          <div className="metric-glass flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Award size={16} className="text-muted" />
               <span className="text-sm text-muted">Session PnL</span>
@@ -118,7 +137,7 @@ export function DashboardSessionWidget() {
               className="font-mono text-sm font-bold"
               style={{ color: returnPositive ? "var(--green)" : "var(--red)" }}
             >
-              {returnPositive ? "+" : ""}{session.sessionPnL.toFixed(2)} USD
+              {returnPositive ? "+" : ""}<AnimatedNumber value={session.sessionPnL} decimals={2} /> USD
             </span>
           </div>
           <button
@@ -136,7 +155,7 @@ export function DashboardSessionWidget() {
   const returnPositive = session.sessionReturnPercent >= 0;
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>Session</CardTitle>
@@ -147,31 +166,34 @@ export function DashboardSessionWidget() {
                 {Math.floor(cooldownRemaining / 60)}:{String(cooldownRemaining % 60).padStart(2, "0")}
               </span>
             )}
-            <Badge tone="success">Active</Badge>
+            <span className="session-pulse" style={{ display: "inline-flex" }}>
+              <Badge tone="info" style={{ background: "var(--session-purple-dim)", color: "var(--session-purple)", border: "0.5px solid var(--session-purple-glow)" }}>Active</Badge>
+            </span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
-          <Metric icon={BarChart3} label="Trades" value={String(session.tradesTaken)} tone="neutral" />
-          <Metric
+          <AnimatedMetric icon={BarChart3} label="Trades" value={session.tradesTaken} />
+          <AnimatedMetric
             icon={returnPositive ? TrendingUp : TrendingDown}
             label="Return"
-            value={formatPercent(session.sessionReturnPercent)}
-            tone={returnPositive ? "success" : "danger"}
+            value={session.sessionReturnPercent}
+            decimals={2}
+            suffix="%"
           />
           <Metric icon={Clock} label="Avg hold" value={formatDuration(session.averageHoldTimeSeconds)} tone="neutral" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+          <div className="metric-glass">
             <p className="text-xs text-muted">Wins / Losses</p>
             <p className="font-semibold text-primary">
-              <span className="text-success">{session.winningTrades}</span>
+              <span className="text-success"><AnimatedNumber value={session.winningTrades} /></span>
               {" / "}
-              <span className="text-danger">{session.losingTrades}</span>
+              <span className="text-danger"><AnimatedNumber value={session.losingTrades} /></span>
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-[var(--bg-elevated)] p-3">
+          <div className="metric-glass">
             <p className="text-xs text-muted">Duration</p>
             <p className="font-semibold text-primary">
               {session.startedAt ? formatDuration(Math.floor((Date.now() - session.startedAt) / 1000)) : "—"}

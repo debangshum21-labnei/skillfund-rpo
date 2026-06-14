@@ -2,6 +2,7 @@
 
 import { useSessionStore } from "@/store/session-store";
 import { cn } from "@/lib/utils";
+import { AnimatedNumber } from "@/components/dashboard/animated-number";
 
 const rewardTiers = [
   { demoProfitPercent: 10, rewardPercent: 5, label: "Starter reward" },
@@ -17,12 +18,18 @@ export function RewardProgress() {
     <div className="space-y-4">
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-primary">Reward progress</span>
-        <span className="text-muted">{progressPercent.toFixed(1)}% demo profit</span>
+        <span className="text-muted" style={{ color: progressPercent > 0 ? "var(--rewards-gold)" : undefined }}>
+          <AnimatedNumber value={progressPercent} decimals={1} />% demo profit
+        </span>
       </div>
-      <div className="relative h-3 rounded-full bg-[var(--bg-overlay)]">
+      <div className="relative h-3 rounded-full bg-[var(--bg-overlay)] overflow-hidden">
         <div
-          className="h-3 rounded-full bg-success transition-all"
-          style={{ width: `${Math.min((progressPercent / 20) * 100, 100)}%` }}
+          className="h-3 rounded-full progress-fill"
+          style={{
+            width: `${Math.min((progressPercent / 20) * 100, 100)}%`,
+            background: "var(--rewards-gold)",
+            boxShadow: "0 0 8px var(--rewards-gold-glow)",
+          }}
         />
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
@@ -32,9 +39,10 @@ export function RewardProgress() {
             <div
               key={tier.label}
               className={cn(
-                "rounded-xl border p-3 text-sm",
-                active ? "border-[var(--green)] bg-[var(--green-dim)]" : "border-border bg-surface",
+                "rounded-xl border p-3 text-sm transition-all duration-300",
+                active ? "border-[var(--rewards-gold)] bg-[var(--rewards-gold-dim)]" : "border-border bg-surface",
               )}
+              style={active ? { boxShadow: "0 0 12px var(--rewards-gold-glow)" } : undefined}
             >
               <p className="font-semibold text-primary">{tier.demoProfitPercent}% demo</p>
               <p className="mt-1 text-muted">{tier.rewardPercent}% deposit reward</p>

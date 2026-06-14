@@ -63,6 +63,15 @@ export function DonutChart({
 
   return (
     <svg width={size} height={size}>
+      <defs>
+        <filter id="donutGlow">
+          <feGaussianBlur stdDeviation="1" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       {arcs.map((arc, i) =>
         animated ? (
           <motion.circle
@@ -77,6 +86,7 @@ export function DonutChart({
             strokeDashoffset={arc.dashOffset}
             transform={`rotate(-90 ${cx} ${cy})`}
             strokeLinecap="round"
+            filter="url(#donutGlow)"
             initial={{ strokeDasharray: `0 ${arc.circumference}` }}
             animate={{ strokeDasharray: arc.dashArray }}
             transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
@@ -94,6 +104,7 @@ export function DonutChart({
             strokeDashoffset={arc.dashOffset}
             transform={`rotate(-90 ${cx} ${cy})`}
             strokeLinecap="round"
+            filter="url(#donutGlow)"
           />
         ),
       )}

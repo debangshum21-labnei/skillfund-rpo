@@ -17,7 +17,7 @@ export function SessionHistory() {
   if (previousSessions.length === 0) return null;
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardHeader>
         <CardTitle>Session history</CardTitle>
       </CardHeader>

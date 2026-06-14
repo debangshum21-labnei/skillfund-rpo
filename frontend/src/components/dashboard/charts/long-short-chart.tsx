@@ -18,8 +18,8 @@ export function LongShortChart({ size = 120 }: { size?: number }) {
   }, [trades]);
 
   const slices = [
-    { label: "Long", value: long, color: "var(--green)" },
-    { label: "Short", value: short, color: "var(--amber)" },
+    { label: "Long", value: long, color: "var(--analytics-blue)" },
+    { label: "Short", value: short, color: "var(--session-purple)" },
   ];
 
   const total = long + short;
@@ -29,12 +29,12 @@ export function LongShortChart({ size = 120 }: { size?: number }) {
       <DonutChart slices={slices} size={size} />
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full" style={{ background: "var(--green)" }} />
+          <span className="h-2 w-2 rounded-full" style={{ background: "var(--analytics-blue)" }} />
           <span className="text-xs text-muted">Long</span>
           <span className="text-xs font-semibold text-primary">{long}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full" style={{ background: "var(--amber)" }} />
+          <span className="h-2 w-2 rounded-full" style={{ background: "var(--session-purple)" }} />
           <span className="text-xs text-muted">Short</span>
           <span className="text-xs font-semibold text-primary">{short}</span>
         </div>

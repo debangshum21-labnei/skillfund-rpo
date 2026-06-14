@@ -76,6 +76,19 @@ export function EquityCurveChart({ width = 320, height = 140 }: { width?: number
 
   return (
     <svg width={width} height={height} className="tabular">
+      <defs>
+        <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={change >= 0 ? "var(--green)" : "var(--red)"} stopOpacity={0.2} />
+          <stop offset="100%" stopColor={change >= 0 ? "var(--green)" : "var(--red)"} stopOpacity={0.02} />
+        </linearGradient>
+        <filter id="equityGlow">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       {yTicks.map((v) => (
         <g key={v}>
           <text x={padding.left - 6} y={padding.top + chartH - ((v - min) / (max - min || 1)) * chartH + 3} textAnchor="end" className="text-[10px]" fill="var(--text-muted)">
@@ -101,20 +114,15 @@ export function EquityCurveChart({ width = 320, height = 140 }: { width?: number
       <motion.path
         d={linePath}
         fill="none"
-        stroke={change >= 0 ? "var(--green)" : "var(--red)"}
+        stroke={change >= 0 ? "var(--emerald)" : "var(--premium-red)"}
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
+        filter="url(#equityGlow)"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
-      <defs>
-        <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={change >= 0 ? "var(--green)" : "var(--red)"} stopOpacity={0.2} />
-          <stop offset="100%" stopColor={change >= 0 ? "var(--green)" : "var(--red)"} stopOpacity={0.02} />
-        </linearGradient>
-      </defs>
     </svg>
   );
 }

@@ -1,6 +1,8 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
+import { AnimatedNumber } from "@/components/dashboard/animated-number";
+
+const currSymbol = { INR: "₹", USD: "$" } as const;
 
 export function BalanceCard({
   label, amount, currency, detail, trend = "up",
@@ -13,7 +15,7 @@ export function BalanceCard({
   const dimColor  = trend === "up" ? "var(--green-dim)" : "var(--red-dim)";
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardContent style={{ padding: 16 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
           <div style={{ minWidth: 0 }}>
@@ -24,7 +26,7 @@ export function BalanceCard({
               fontSize: 22, fontFamily: "var(--font-mono)", fontWeight: 600,
               color: "var(--text-primary)", margin: "0 0 4px", letterSpacing: "-0.02em",
             }}>
-              {formatCurrency(amount, currency)}
+              {currSymbol[currency]}<AnimatedNumber value={amount} decimals={2} />
             </p>
             <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0 }}>{detail}</p>
           </div>

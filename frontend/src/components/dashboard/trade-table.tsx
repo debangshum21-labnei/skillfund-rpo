@@ -10,7 +10,7 @@ export function TradeTable({ title = "Trade history" }: { title?: string }) {
   const trades = useTradingStore((s) => s.trades);
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

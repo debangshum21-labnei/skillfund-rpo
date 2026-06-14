@@ -41,6 +41,15 @@ export function SessionBarChart({ width = 320, height = 140 }: { width?: number;
 
   return (
     <svg width={width} height={height} className="tabular">
+      <defs>
+        <filter id="barGlow">
+          <feGaussianBlur stdDeviation="1" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       <line x1={padding.left} y1={zeroY} x2={padding.left + chartW} y2={zeroY} stroke="var(--border)" strokeWidth={0.5} />
       {[-maxAbs, 0, maxAbs].map((v) => (
         <text
@@ -62,7 +71,8 @@ export function SessionBarChart({ width = 320, height = 140 }: { width?: number;
             width={bar.w}
             height={bar.pct >= 0 ? bar.h : Math.max(bar.h, 2)}
             rx={2}
-            fill={bar.pct >= 0 ? "var(--green)" : "var(--red)"}
+            fill={bar.pct >= 0 ? "var(--emerald)" : "var(--premium-red)"}
+            filter={bar.pct >= 0 ? "url(#barGlow)" : undefined}
             initial={{ height: 0, y: zeroY }}
             animate={{
               height: bar.pct >= 0 ? bar.h : Math.max(bar.h, 2),
